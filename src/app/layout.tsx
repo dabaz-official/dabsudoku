@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import '@/app/tailwind.css';
+import '@/app/styles.css';
 import '@/app/fonts/inter.css';
 import Navbar from '@/components/nav';
 
@@ -20,9 +21,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-white">
         <Navbar />
-        {children}
+        <div className="max-w-7xl mx-auto p-4 lg:px-8">
+          {children}
+        </div>
       </body>
     </html>
   )
