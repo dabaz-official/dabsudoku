@@ -1,7 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import './tailwind.css';
-import './fonts/inter.css';
+import '@/app/tailwind.css';
+import '@/app/fonts/inter.css';
+import Navbar from '@/components/nav';
 
 export const metadata: Metadata = {
   title: {
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Navbar />
         {children}
       </body>
     </html>
