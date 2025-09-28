@@ -1,0 +1,23 @@
+{
+	"name": "dabsudoku",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@tailwindcss/postcss": "^4.1.13",
+		"next": "^15.5.4",
+		"postcss": "^8.5.6",
+		"react": "^19.1.1",
+		"react-dom": "^19.1.1",
+		"tailwindcss": "^4.1.13"
+	},
+	"scripts": {
+		"dev": "next dev --turbopack",
+		"build": "next build",
+		"start": "next start"
+	},
+	"devDependencies": {
+		"@types/node": "24.5.2",
+		"@types/react": "19.1.14",
+		"typescript": "5.9.2"
+	}
+}
