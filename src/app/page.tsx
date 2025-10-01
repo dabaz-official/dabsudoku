@@ -3,6 +3,7 @@ import MistakeCounter from "@/components/sudoku/MistakeCounter";
 import Timer from "@/components/sudoku/Timer";
 import Pause from "@/components/sudoku/Pause";
 import NumericButtons from "@/components/sudoku/NumericButtons";
+import ControlButtons from "@/components/sudoku/ControlButtons";
 
 export default function Page() {
   return (
@@ -17,6 +18,7 @@ export default function Page() {
       <div className="space-y-3">
         <SudokuGrid />
         <NumericButtons />
+        <ControlButtons />
       </div>
     </div>
   )

@@ -19,6 +19,10 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
   const selectedRef = useRef<{ row: number; col: number } | null>(null);
   // 9x9 数组，0 表示空
   const boardRef = useRef<number[][]>(Array.from({ length: 9 }, () => Array(9).fill(0)));
+  // 9x9 候选集合（笔记模式），每个格子一个候选数组（1-9）
+  const candidatesRef = useRef<number[][][]>(
+    Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => []))
+  );
   // 记录最后一次用户输入的格子位置
   const lastInputRef = useRef<{ row: number; col: number } | null>(null);
 
@@ -195,10 +199,11 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
       ctx.strokeStyle = '#000000';
       ctx.strokeRect(roundHalf(0), roundHalf(0), Math.floor(size) - 1, Math.floor(size) - 1);
 
-      // 绘制数字（默认颜色为蓝色；若为最后输入且存在冲突，则字体为 red-800）
+      // 绘制数字/候选（默认颜色为蓝色；若为最后输入且存在冲突，则字体为 red-800）
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `${Math.floor(cell * 0.6)}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif`;
+      const bigFont = `${Math.floor(cell * 0.6)}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif`;
+      const smallFont = `${Math.floor(cell * 0.22)}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif`;
       const last = lastInputRef.current;
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
@@ -211,8 +216,24 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
             if (last && last.row === r && last.col === c && conflicts[r][c]) {
               fill = '#991b1b'; // tailwind red-800（最后输入且冲突，直到下次输入前保持）
             }
+            ctx.font = bigFont; // 每个数字格明确使用大字体，避免受候选小字体影响
             ctx.fillStyle = fill;
             ctx.fillText(String(v), x, y);
+          } else {
+            // 无数字则绘制候选（若存在）
+            const cand = candidatesRef.current[r][c];
+            if (cand && cand.length > 0) {
+              const sub = cell / 3;
+              ctx.fillStyle = '#223BB2';
+              ctx.font = smallFont; // 候选使用小字体，但不影响后续数字格
+              for (const n of cand) {
+                const rr = Math.floor((n - 1) / 3);
+                const cc = (n - 1) % 3;
+                const x = c * cell + cc * sub + sub / 2;
+                const y = r * cell + rr * sub + sub / 2;
+                ctx.fillText(String(n), x, y);
+              }
+            }
           }
         }
       }
@@ -237,6 +258,8 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
 
     canvas.addEventListener('click', handleClick);
 
+    // 是否处于笔记模式（候选输入）
+    let noteMode = false;
     const handleKeyDown = (e: KeyboardEvent) => {
       const sel = selectedRef.current;
       const ensureSelection = () => {
@@ -261,6 +284,7 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
       // 删除键
       if ((e.key === 'Backspace' || e.key === 'Delete') && sel) {
         boardRef.current[sel.row][sel.col] = 0;
+        candidatesRef.current[sel.row][sel.col] = [];
         draw();
         e.preventDefault();
         return;
@@ -274,10 +298,25 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
         val = parseInt(e.code.replace('Numpad', ''), 10);
       }
       if (val && sel) {
-        boardRef.current[sel.row][sel.col] = val;
-        lastInputRef.current = { row: sel.row, col: sel.col };
-        // 重新绘制以更新冲突矩阵
-        draw();
+        // 值输入：根据是否处于笔记模式进行不同处理
+        if (noteMode) {
+          // 仅空格可记录候选
+          if (boardRef.current[sel.row][sel.col] === 0) {
+            const arr = candidatesRef.current[sel.row][sel.col];
+            const idx = arr.indexOf(val);
+            if (idx >= 0) arr.splice(idx, 1);
+            else arr.push(val);
+            // 排序以保证稳定显示
+            arr.sort((a, b) => a - b);
+            draw();
+          }
+        } else {
+          boardRef.current[sel.row][sel.col] = val;
+          candidatesRef.current[sel.row][sel.col] = [];
+          lastInputRef.current = { row: sel.row, col: sel.col };
+          // 重新绘制以更新冲突矩阵
+          draw();
+        }
         // 如果当前输入导致冲突，派发一次全局事件供 MistakeCounter 统计
         (function dispatchMistakeIfAny() {
           const r = sel.row, c = sel.col;
@@ -318,10 +357,29 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
 
     window.addEventListener('keydown', handleKeyDown);
 
+    // 监听笔记模式切换
+    const onNoteMode = (e: Event) => {
+      const ce = e as CustomEvent<{ enabled: boolean }>;
+      noteMode = !!ce.detail?.enabled;
+    };
+    window.addEventListener('sudoku:noteMode', onNoteMode as EventListener);
+
+    // 监听擦除事件
+    const onErase = () => {
+      if (!selectedRef.current) return;
+      const { row, col } = selectedRef.current;
+      boardRef.current[row][col] = 0;
+      candidatesRef.current[row][col] = [];
+      draw();
+    };
+    window.addEventListener('sudoku:erase', onErase as EventListener);
+
     return () => {
       ro.disconnect();
       canvas?.removeEventListener('click', handleClick);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('sudoku:noteMode', onNoteMode as EventListener);
+      window.removeEventListener('sudoku:erase', onErase as EventListener);
     };
   }, [maxSize]);
 
