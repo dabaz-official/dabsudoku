@@ -299,24 +299,36 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
       window.dispatchEvent(new CustomEvent('sudoku:completeDigits', { detail: { digits: completed } }));
     };
 
-    // Initialize puzzle on first mount with random difficulty
-    (function initPuzzle() {
-      const difficulties = ['easy', 'medium', 'hard'] as const;
-      const d = difficulties[Math.floor(Math.random() * difficulties.length)];
+    const loadPuzzle = (d: 'easy' | 'medium' | 'hard') => {
       const { puzzle, solution } = generateSudoku(d);
-      // Fill board and fixed mask
+      // Fill board and fixed mask; clear candidates, selection, last input
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
           const v = puzzle[r][c];
           boardRef.current[r][c] = v;
           fixedRef.current[r][c] = v !== 0;
+          candidatesRef.current[r][c] = [];
         }
       }
+      selectedRef.current = null;
+      lastInputRef.current = null;
       solutionRef.current = solution;
+      // Resume timer and remove paused overlay if any
+      window.dispatchEvent(new CustomEvent('sudoku:paused', { detail: { paused: false } }));
+      // Reset timer for a new puzzle
+      window.dispatchEvent(new Event('sudoku:resetTimer'));
       // Notify difficulty for UI label
       window.dispatchEvent(new CustomEvent('sudoku:difficulty', { detail: { difficulty: d } }));
-      // Initial compute of completed digits (usually none, but keep logic consistent)
+      // Update derived UI states
       computeCompleteDigits();
+      draw();
+    };
+
+    // Initialize puzzle on first mount with random difficulty
+    (function initPuzzle() {
+      const difficulties = ['easy', 'medium', 'hard'] as const;
+      const d = difficulties[Math.floor(Math.random() * difficulties.length)];
+      loadPuzzle(d);
     })();
 
     const ro = new ResizeObserver(() => draw());
@@ -501,12 +513,21 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
     };
     window.addEventListener('sudoku:erase', onErase as EventListener);
 
+    // Listen for new puzzle request with specified difficulty
+    const onNewPuzzle = (e: Event) => {
+      const ce = e as CustomEvent<{ difficulty: 'easy' | 'medium' | 'hard' }>;
+      const d = ce.detail?.difficulty ?? 'easy';
+      loadPuzzle(d);
+    };
+    window.addEventListener('sudoku:newPuzzle', onNewPuzzle as EventListener);
+
     return () => {
       ro.disconnect();
       canvas?.removeEventListener('click', handleClick);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('sudoku:noteMode', onNoteMode as EventListener);
       window.removeEventListener('sudoku:erase', onErase as EventListener);
+      window.removeEventListener('sudoku:newPuzzle', onNewPuzzle as EventListener);
     };
   }, [maxSize]);
 

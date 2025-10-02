@@ -5,8 +5,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MenuIcon, XIcon } from 'lucide-react';
 import Link from 'next/link';
 
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [mobileNewOpen, setMobileNewOpen] = useState(false);
 
   // Disable/enable overflow when menu is open
   useEffect(() => {
@@ -31,9 +35,31 @@ const Navbar = () => {
           DabSudoku
         </div>
         <div className="hidden sm:flex space-x-6">
-          <div className="text-neutral-900 cursor-pointer">
-            New Game
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-neutral-900 cursor-pointer">
+              New Game
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="start">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => window.dispatchEvent(new CustomEvent('sudoku:newPuzzle', { detail: { difficulty: 'easy' } }))}
+              >
+                Easy
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => window.dispatchEvent(new CustomEvent('sudoku:newPuzzle', { detail: { difficulty: 'medium' } }))}
+              >
+                Medium
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => window.dispatchEvent(new CustomEvent('sudoku:newPuzzle', { detail: { difficulty: 'hard' } }))}
+              >
+                Hard
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="text-neutral-900 cursor-pointer">
             How to Play
           </div>
@@ -83,10 +109,54 @@ const Navbar = () => {
                 <div className="space-y-2">
                   <button
                     className="block w-full text-left text-neutral-900 font-bold text-xl font-display py-2 cursor-pointer"
-                    onClick={() => setOpen(false)}
+                    aria-expanded={mobileNewOpen}
+                    onClick={() => setMobileNewOpen(v => !v)}
                   >
                     New Game
                   </button>
+                  {/* Difficulty options when New Game is expanded */}
+                  <AnimatePresence>
+                    {mobileNewOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-1 pl-2"
+                      >
+                        <button
+                          className="block w-full text-left text-neutral-900 text-lg py-1 cursor-pointer"
+                          onClick={() => {
+                            window.dispatchEvent(new CustomEvent('sudoku:newPuzzle', { detail: { difficulty: 'easy' } }));
+                            setMobileNewOpen(false);
+                            setOpen(false);
+                          }}
+                        >
+                          Easy
+                        </button>
+                        <button
+                          className="block w-full text-left text-neutral-900 text-lg py-1 cursor-pointer"
+                          onClick={() => {
+                            window.dispatchEvent(new CustomEvent('sudoku:newPuzzle', { detail: { difficulty: 'medium' } }));
+                            setMobileNewOpen(false);
+                            setOpen(false);
+                          }}
+                        >
+                          Medium
+                        </button>
+                        <button
+                          className="block w-full text-left text-neutral-900 text-lg py-1 cursor-pointer"
+                          onClick={() => {
+                            window.dispatchEvent(new CustomEvent('sudoku:newPuzzle', { detail: { difficulty: 'hard' } }));
+                            setMobileNewOpen(false);
+                            setOpen(false);
+                          }}
+                        >
+                          Hard
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   <Link
                     className="block w-full text-left text-neutral-900 font-bold text-xl font-display py-2 cursor-pointer"
                     href="https://sudoku.com/sudoku-rules"

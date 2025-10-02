@@ -59,8 +59,28 @@ const Timer: React.FC<Props> = ({ className = '' }) => {
     };
 
     window.addEventListener('sudoku:paused', onPaused as EventListener);
+    const onReset = () => {
+      // Clear running interval and reset start time to now, zero elapsed
+      if (intervalRef.current !== null) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      startRef.current = Date.now();
+      latestElapsedRef.current = 0;
+      setElapsed(0);
+      // Start ticking again
+      const tick = () => {
+        const seconds = Math.floor((Date.now() - startRef.current) / 1000);
+        latestElapsedRef.current = seconds;
+        setElapsed(seconds);
+      };
+      tick();
+      intervalRef.current = window.setInterval(tick, 1000);
+    };
+    window.addEventListener('sudoku:resetTimer', onReset as EventListener);
     return () => {
       window.removeEventListener('sudoku:paused', onPaused as EventListener);
+      window.removeEventListener('sudoku:resetTimer', onReset as EventListener);
       stopTick();
     };
   }, []);
