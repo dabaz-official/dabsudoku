@@ -1,5 +1,6 @@
 import { SudokuBoard } from "@/components/organisms";
 import { NumericPad, ControlButtons, Pause, Timer, MistakeCounter } from "@/components/molecules";
+import Difficulty from "@/components/molecules/Difficulty";
 
 export default function Page() {
   return (
@@ -7,6 +8,8 @@ export default function Page() {
       <div className="space-y-3">
         <div className="flex items-center gap-4 justify-between">
           <Timer />
+          <Difficulty />
+          
           <div className="flex items-center gap-x-2">
             <MistakeCounter />
             <Pause />

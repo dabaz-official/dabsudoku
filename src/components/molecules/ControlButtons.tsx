@@ -48,7 +48,9 @@ const ControlButtons: React.FC<Props> = ({ className = '' }) => {
         onClick={toggleNotes}
         aria-label="Toggle notes"
         aria-pressed={notes}
-        className="inline-flex items-center p-1 text-neutral-900 hover:text-neutral-700 focus:outline-none"
+        className={`inline-flex items-center p-1 focus:outline-none ${
+          notes ? 'text-blue-600' : 'text-neutral-900 hover:text-neutral-700'
+        }`}
       >
         <Pencil className="h-5 w-5" />
       </button>

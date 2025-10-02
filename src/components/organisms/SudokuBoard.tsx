@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { generateSudoku } from '@/features/sudoku';
 
 type Props = {
   className?: string;
@@ -19,6 +20,10 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
   const selectedRef = useRef<{ row: number; col: number } | null>(null);
 // 9x9 array, 0 means empty
   const boardRef = useRef<number[][]>(Array.from({ length: 9 }, () => Array(9).fill(0)));
+// Fixed givens mask: true means puzzle fixed value, not editable
+  const fixedRef = useRef<boolean[][]>(Array.from({ length: 9 }, () => Array(9).fill(false)));
+// Optional: store solution for future validation (not used here)
+  const solutionRef = useRef<number[][] | null>(null);
 // 9x9 candidates (note mode), each cell holds 1-9
   const candidatesRef = useRef<number[][][]>(
     Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => []))
@@ -88,7 +93,7 @@ const size = Math.min(container.clientWidth, maxSize); // CSS pixel size (square
         ctx.fillRect(col * cell, row * cell, cell, cell);
       }
 
-// Conflict highlight: duplicate numbers in row/column/block get red-200 background
+      // Conflict highlight: duplicate numbers in row/column/block get red-200 background
       {
 // Row conflicts
         for (let r = 0; r < 9; r++) {
@@ -103,6 +108,17 @@ const size = Math.min(container.clientWidth, maxSize); // CSS pixel size (square
           for (const [, cols] of map) {
             if (cols.length > 1) {
               for (const c of cols) conflicts[r][c] = true;
+            }
+          }
+        }
+        // Also mark cells that differ from the unique solution as conflicts (same visual style)
+        if (solutionRef.current) {
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              const v = boardRef.current[r][c];
+              if (!v) continue;
+              if (fixedRef.current[r][c]) continue;
+              if (solutionRef.current[r][c] !== v) conflicts[r][c] = true;
             }
           }
         }
@@ -199,7 +215,7 @@ if (i % 3 === 0) continue; // Skip 3x3 block borders
       ctx.strokeStyle = '#000000';
       ctx.strokeRect(roundHalf(0), roundHalf(0), Math.floor(size) - 1, Math.floor(size) - 1);
 
-// Draw numbers/candidates (default color blue; last input with conflict uses red-800)
+      // Draw numbers/candidates (default color blue; last input with conflict uses red-800)
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const bigFont = `${Math.floor(cell * 0.6)}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif`;
@@ -213,10 +229,14 @@ if (i % 3 === 0) continue; // Skip 3x3 block borders
             const y = r * cell + cell / 2;
 // Default font color
             let fill = '#223BB2';
-            if (last && last.row === r && last.col === c && conflicts[r][c]) {
-fill = '#991b1b'; // tailwind red-800 (last input in conflict, persists until next input)
+            const isFixed = fixedRef.current[r][c];
+            // Priority: fixed -> black; last-conflict -> red-800; otherwise blue
+            if (isFixed) {
+              fill = '#000000';
+            } else if (last && last.row === r && last.col === c && conflicts[r][c]) {
+              fill = '#991b1b'; // red-800 for conflict on last input (includes wrong vs solution)
             }
-ctx.font = bigFont; // Use big font for digits; avoid being affected by small candidate font
+            ctx.font = bigFont; // Use big font for digits; avoid being affected by small candidate font
             ctx.fillStyle = fill;
             ctx.fillText(String(v), x, y);
           } else {
@@ -238,6 +258,66 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
         }
       }
     };
+
+    // Helper: check if board equals the unique solution exactly
+    const isSolvedBySolution = (): boolean => {
+      if (!solutionRef.current) return false;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (boardRef.current[r][c] !== solutionRef.current[r][c]) return false;
+        }
+      }
+      return true;
+    };
+
+    const maybeAutoPause = () => {
+      if (isSolvedBySolution()) {
+        // Dispatch paused event; Timer listens and will stop ticking
+        window.dispatchEvent(new CustomEvent('sudoku:paused', { detail: { paused: true } }));
+      }
+    };
+
+    // Compute digits (1-9) that are completely and correctly placed per solution.
+    const computeCompleteDigits = () => {
+      if (!solutionRef.current) return;
+      const completed: number[] = [];
+      for (let n = 1; n <= 9; n++) {
+        let ok = true;
+        for (let r = 0; r < 9 && ok; r++) {
+          for (let c = 0; c < 9; c++) {
+            const s = solutionRef.current![r][c];
+            const b = boardRef.current[r][c];
+            if (s === n) {
+              if (b !== n) { ok = false; break; }
+            } else {
+              if (b === n) { ok = false; break; }
+            }
+          }
+        }
+        if (ok) completed.push(n);
+      }
+      window.dispatchEvent(new CustomEvent('sudoku:completeDigits', { detail: { digits: completed } }));
+    };
+
+    // Initialize puzzle on first mount with random difficulty
+    (function initPuzzle() {
+      const difficulties = ['easy', 'medium', 'hard'] as const;
+      const d = difficulties[Math.floor(Math.random() * difficulties.length)];
+      const { puzzle, solution } = generateSudoku(d);
+      // Fill board and fixed mask
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const v = puzzle[r][c];
+          boardRef.current[r][c] = v;
+          fixedRef.current[r][c] = v !== 0;
+        }
+      }
+      solutionRef.current = solution;
+      // Notify difficulty for UI label
+      window.dispatchEvent(new CustomEvent('sudoku:difficulty', { detail: { difficulty: d } }));
+      // Initial compute of completed digits (usually none, but keep logic consistent)
+      computeCompleteDigits();
+    })();
 
     const ro = new ResizeObserver(() => draw());
     ro.observe(container);
@@ -283,9 +363,16 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
 
 // Delete key
       if ((e.key === 'Backspace' || e.key === 'Delete') && sel) {
+        // Prevent deleting fixed givens
+        if (fixedRef.current[sel.row][sel.col]) {
+          e.preventDefault();
+          return;
+        }
         boardRef.current[sel.row][sel.col] = 0;
         candidatesRef.current[sel.row][sel.col] = [];
         draw();
+        maybeAutoPause();
+        computeCompleteDigits();
         e.preventDefault();
         return;
       }
@@ -301,7 +388,7 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
 // Value input: behavior depends on note mode
         if (noteMode) {
 // Only empty cells can record candidates
-          if (boardRef.current[sel.row][sel.col] === 0) {
+          if (boardRef.current[sel.row][sel.col] === 0 && !fixedRef.current[sel.row][sel.col]) {
             const arr = candidatesRef.current[sel.row][sel.col];
             const idx = arr.indexOf(val);
             if (idx >= 0) arr.splice(idx, 1);
@@ -313,6 +400,11 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
         } else {
 // Non-note mode: write value and clear candidate of same number in row/column/block
           const r = sel.row, c = sel.col;
+          // Prevent overwriting fixed givens
+          if (fixedRef.current[r][c]) {
+            e.preventDefault();
+            return;
+          }
           boardRef.current[r][c] = val;
           candidatesRef.current[r][c] = [];
           lastInputRef.current = { row: r, col: c };
@@ -343,8 +435,10 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
             }
           }
 
-// Redraw to update conflict matrix and candidate rendering
+          // Redraw to update conflict matrix and candidate rendering
           draw();
+          maybeAutoPause();
+          computeCompleteDigits();
         }
 // If input causes conflict, dispatch global event for MistakeCounter
         (function dispatchMistakeIfAny() {
@@ -393,13 +487,17 @@ ctx.font = smallFont; // Use small font for candidates; does not affect later di
     };
     window.addEventListener('sudoku:noteMode', onNoteMode as EventListener);
 
-// Listen for erase event
+    // Listen for erase event
     const onErase = () => {
       if (!selectedRef.current) return;
       const { row, col } = selectedRef.current;
+      // Prevent erasing fixed givens
+      if (fixedRef.current[row][col]) return;
       boardRef.current[row][col] = 0;
       candidatesRef.current[row][col] = [];
       draw();
+      maybeAutoPause();
+      computeCompleteDigits();
     };
     window.addEventListener('sudoku:erase', onErase as EventListener);
 
