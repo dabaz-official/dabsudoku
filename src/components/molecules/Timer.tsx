@@ -42,17 +42,17 @@ const Timer: React.FC<Props> = ({ className = '' }) => {
       }
     };
 
-    // 初始开始计时（组件挂载时）
+// Start timing on mount
     startTick();
 
     const onPaused = (e: Event) => {
       const ce = e as CustomEvent<{ paused: boolean }>;
       const next = !!ce.detail?.paused;
       if (next) {
-        // 暂停：停止计时器（保持 elapsed 不变）
+// Pause: stop timer, preserve elapsed
         stopTick();
       } else {
-        // 继续：以当前 elapsed 为基准恢复计时（用 ref 避免闭包中旧值）
+// Resume: continue from current elapsed (use ref to avoid stale closure)
         startRef.current = Date.now() - latestElapsedRef.current * 1000;
         startTick();
       }

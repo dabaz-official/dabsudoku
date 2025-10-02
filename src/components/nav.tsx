@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MenuIcon, XIcon } from 'lucide-react';
+import Link from 'next/link';
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -86,12 +87,13 @@ const Navbar = () => {
                   >
                     New Game
                   </button>
-                  <button
+                  <Link
                     className="block w-full text-left text-neutral-900 font-bold text-xl font-display py-2 cursor-pointer"
-                    onClick={() => setOpen(false)}
+                    href="https://sudoku.com/sudoku-rules"
+                    target="_blank"
                   >
                     How to Play
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

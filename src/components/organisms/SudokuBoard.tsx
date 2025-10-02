@@ -4,12 +4,12 @@ import React, { useEffect, useRef } from 'react';
 
 type Props = {
   className?: string;
-  // 期望最大显示尺寸（CSS像素），默认 720，与现有组件一致
+// Preferred max display size (CSS pixels), default 720, matches existing
   maxSize?: number;
 };
 
 function roundHalf(x: number) {
-  // 将坐标对齐到 0.5，以在 1px 线宽下获得更清晰的像素对齐
+// Align coordinates to 0.5 for crisp 1px lines
   return Math.round(x) + 0.5;
 }
 
@@ -17,13 +17,13 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const selectedRef = useRef<{ row: number; col: number } | null>(null);
-  // 9x9 数组，0 表示空
+// 9x9 array, 0 means empty
   const boardRef = useRef<number[][]>(Array.from({ length: 9 }, () => Array(9).fill(0)));
-  // 9x9 候选集合（笔记模式），每个格子一个候选数组（1-9）
+// 9x9 candidates (note mode), each cell holds 1-9
   const candidatesRef = useRef<number[][][]>(
     Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => []))
   );
-  // 记录最后一次用户输入的格子位置
+// Track last input cell position
   const lastInputRef = useRef<{ row: number; col: number } | null>(null);
 
   useEffect(() => {
@@ -34,10 +34,10 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
     const dpr = Math.max(window.devicePixelRatio || 1, 1);
 
     const draw = () => {
-      const size = Math.min(container.clientWidth, maxSize); // CSS 像素尺寸（正方形）
+const size = Math.min(container.clientWidth, maxSize); // CSS pixel size (square)
       if (size <= 0) return;
 
-      // 物理像素尺寸，考虑 DPR
+// Physical pixels, respect DPR
       canvas.width = Math.floor(size * dpr);
       canvas.height = Math.floor(size * dpr);
       canvas.style.width = `${size}px`;
@@ -46,31 +46,31 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // 将坐标系缩放到 CSS 像素维度
+// Scale the coordinate system to CSS pixels
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // 背景（白色）
+// Background (white)
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, size, size);
 
       const cell = size / 9;
-      // 预先创建冲突矩阵（在绘制数字时也会使用）
+// Precompute conflict matrix (also used while drawing numbers)
       let conflicts: boolean[][] = Array.from({ length: 9 }, () => Array(9).fill(false));
 
-      // 选中格所在的行/列/宫高亮（blue-100），选中格本身为 blue-200
+// Highlight row/column/block of selection (blue-100), selected cell blue-200
       if (selectedRef.current) {
         const { row, col } = selectedRef.current;
-        // 行
+// Row
         ctx.fillStyle = '#e3e8f0'; // tailwind blue-100
         ctx.fillRect(0, row * cell, size, cell);
-        // 列
+// Column
         ctx.fillRect(col * cell, 0, cell, size);
-        // 宫（3x3）
+// Block (3x3)
         const blockRow = Math.floor(row / 3) * 3;
         const blockCol = Math.floor(col / 3) * 3;
         ctx.fillRect(blockCol * cell, blockRow * cell, cell * 3, cell * 3);
 
-        // 同数字高亮（blue-300），覆盖在行/列/宫之上
+// Same-number highlight (blue-300), over row/column/block
         const selectedVal = boardRef.current[row][col];
         if (selectedVal) {
           ctx.fillStyle = '#deeafd'; // tailwind blue-300
@@ -83,14 +83,14 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
           }
         }
 
-        // 选中格覆盖为更深色（blue-200）
+// Selected cell overlay (blue-200)
         ctx.fillStyle = '#bfdbfe'; // tailwind blue-200
         ctx.fillRect(col * cell, row * cell, cell, cell);
       }
 
-      // 冲突高亮：任何行/列/宫中出现重复数字的格子以 red-200 背景高亮
+// Conflict highlight: duplicate numbers in row/column/block get red-200 background
       {
-        // 行冲突
+// Row conflicts
         for (let r = 0; r < 9; r++) {
           const map = new Map<number, number[]>();
           for (let c = 0; c < 9; c++) {
@@ -106,7 +106,7 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
             }
           }
         }
-        // 列冲突
+// Column conflicts
         for (let c = 0; c < 9; c++) {
           const map = new Map<number, number[]>();
           for (let r = 0; r < 9; r++) {
@@ -122,7 +122,7 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
             }
           }
         }
-        // 宫冲突
+// Block conflicts
         for (let br = 0; br < 3; br++) {
           for (let bc = 0; bc < 3; bc++) {
             const map = new Map<number, Array<[number, number]>>();
@@ -142,14 +142,14 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
             }
           }
         }
-        // 绘制冲突背景：所有冲突格子都为 red-200；若为当前选中格，则保持其蓝色背景
+// Draw conflict background: red-200 for conflicts; keep blue for selected cell
         ctx.fillStyle = '#fecaca'; // tailwind red-200
         const sel = selectedRef.current;
         for (let r = 0; r < 9; r++) {
           for (let c = 0; c < 9; c++) {
             if (conflicts[r][c]) {
               if (sel && sel.row === r && sel.col === c) {
-                // 当前选中格：保留其蓝色选中背景，不覆盖为红色
+// Selected cell: keep blue background, do not overwrite with red
               } else {
                 ctx.fillRect(c * cell, r * cell, cell, cell);
               }
@@ -158,48 +158,48 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
         }
       }
 
-      // 1) 普通网格线：neutral-400（先绘制，避免覆盖黑色粗线）
-      // Tailwind neutral-400 约为 #a3a3a3（rgb(163, 163, 163)）
+// 1) Regular grid lines: neutral-400 (draw first, avoid covering bold lines)
+// Tailwind neutral-400 ≈ #a3a3a3 (rgb(163,163,163))
       ctx.lineWidth = 1;
       ctx.strokeStyle = '#a3a3a3';
       for (let i = 1; i <= 8; i++) {
-        if (i % 3 === 0) continue; // 跳过 3x3 宫边线
+if (i % 3 === 0) continue; // Skip 3x3 block borders
         const pos = i * cell;
-        // 横向细线
+// Thin horizontal lines
         ctx.beginPath();
         ctx.moveTo(roundHalf(0), roundHalf(pos));
         ctx.lineTo(roundHalf(size), roundHalf(pos));
         ctx.stroke();
-        // 纵向细线
+// Thin vertical lines
         ctx.beginPath();
         ctx.moveTo(roundHalf(pos), roundHalf(0));
         ctx.lineTo(roundHalf(pos), roundHalf(size));
         ctx.stroke();
       }
 
-      // 2) 3x3 宫边框：黑色（内部粗线）
+// 2) 3x3 block borders: black (inner bold lines)
       ctx.lineWidth = 2;
       ctx.strokeStyle = '#000000';
       for (let i = 1; i <= 2; i++) {
         const pos = i * 3 * cell;
-        // 横向线
+// Horizontal lines
         ctx.beginPath();
         ctx.moveTo(roundHalf(0), roundHalf(pos));
         ctx.lineTo(roundHalf(size), roundHalf(pos));
         ctx.stroke();
-        // 纵向线
+// Vertical lines
         ctx.beginPath();
         ctx.moveTo(roundHalf(pos), roundHalf(0));
         ctx.lineTo(roundHalf(pos), roundHalf(size));
         ctx.stroke();
       }
 
-      // 3) 外边框：黑色（最后绘制，覆盖所有细线端点）
+// 3) Outer border: black (draw last, cover all line endpoints)
       ctx.lineWidth = 4;
       ctx.strokeStyle = '#000000';
       ctx.strokeRect(roundHalf(0), roundHalf(0), Math.floor(size) - 1, Math.floor(size) - 1);
 
-      // 绘制数字/候选（默认颜色为蓝色；若为最后输入且存在冲突，则字体为 red-800）
+// Draw numbers/candidates (default color blue; last input with conflict uses red-800)
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const bigFont = `${Math.floor(cell * 0.6)}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif`;
@@ -211,21 +211,21 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
           if (v) {
             const x = c * cell + cell / 2;
             const y = r * cell + cell / 2;
-            // 默认字体颜色
+// Default font color
             let fill = '#223BB2';
             if (last && last.row === r && last.col === c && conflicts[r][c]) {
-              fill = '#991b1b'; // tailwind red-800（最后输入且冲突，直到下次输入前保持）
+fill = '#991b1b'; // tailwind red-800 (last input in conflict, persists until next input)
             }
-            ctx.font = bigFont; // 每个数字格明确使用大字体，避免受候选小字体影响
+ctx.font = bigFont; // Use big font for digits; avoid being affected by small candidate font
             ctx.fillStyle = fill;
             ctx.fillText(String(v), x, y);
           } else {
-            // 无数字则绘制候选（若存在）
+// Draw candidates if no digit
             const cand = candidatesRef.current[r][c];
             if (cand && cand.length > 0) {
               const sub = cell / 3;
               ctx.fillStyle = '#223BB2';
-              ctx.font = smallFont; // 候选使用小字体，但不影响后续数字格
+ctx.font = smallFont; // Use small font for candidates; does not affect later digits
               for (const n of cand) {
                 const rr = Math.floor((n - 1) / 3);
                 const cc = (n - 1) % 3;
@@ -258,7 +258,7 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
 
     canvas.addEventListener('click', handleClick);
 
-    // 是否处于笔记模式（候选输入）
+// Note mode (candidate input) state
     let noteMode = false;
     const handleKeyDown = (e: KeyboardEvent) => {
       const sel = selectedRef.current;
@@ -266,7 +266,7 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
         if (!selectedRef.current) selectedRef.current = { row: 0, col: 0 };
       };
 
-      // 方向键
+// Arrow keys
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         ensureSelection();
         const { row, col } = selectedRef.current!;
@@ -281,7 +281,7 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
         return;
       }
 
-      // 删除键
+// Delete key
       if ((e.key === 'Backspace' || e.key === 'Delete') && sel) {
         boardRef.current[sel.row][sel.col] = 0;
         candidatesRef.current[sel.row][sel.col] = [];
@@ -290,7 +290,7 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
         return;
       }
 
-      // 数字键 1-9（含数字小键盘）
+// Number keys 1-9 (incl. numpad)
       let val: number | null = null;
       if (/^[1-9]$/.test(e.key)) {
         val = parseInt(e.key, 10);
@@ -298,44 +298,73 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
         val = parseInt(e.code.replace('Numpad', ''), 10);
       }
       if (val && sel) {
-        // 值输入：根据是否处于笔记模式进行不同处理
+// Value input: behavior depends on note mode
         if (noteMode) {
-          // 仅空格可记录候选
+// Only empty cells can record candidates
           if (boardRef.current[sel.row][sel.col] === 0) {
             const arr = candidatesRef.current[sel.row][sel.col];
             const idx = arr.indexOf(val);
             if (idx >= 0) arr.splice(idx, 1);
             else arr.push(val);
-            // 排序以保证稳定显示
+// Sort to ensure stable display
             arr.sort((a, b) => a - b);
             draw();
           }
         } else {
-          boardRef.current[sel.row][sel.col] = val;
-          candidatesRef.current[sel.row][sel.col] = [];
-          lastInputRef.current = { row: sel.row, col: sel.col };
-          // 重新绘制以更新冲突矩阵
+// Non-note mode: write value and clear candidate of same number in row/column/block
+          const r = sel.row, c = sel.col;
+          boardRef.current[r][c] = val;
+          candidatesRef.current[r][c] = [];
+          lastInputRef.current = { row: r, col: c };
+
+// Row: remove candidate of this value
+          for (let cc = 0; cc < 9; cc++) {
+            if (cc === c) continue;
+            const arr = candidatesRef.current[r][cc];
+            const idx = arr.indexOf(val);
+            if (idx >= 0) arr.splice(idx, 1);
+          }
+// Column: remove candidate of this value
+          for (let rr = 0; rr < 9; rr++) {
+            if (rr === r) continue;
+            const arr = candidatesRef.current[rr][c];
+            const idx = arr.indexOf(val);
+            if (idx >= 0) arr.splice(idx, 1);
+          }
+// Block: remove candidate of this value
+          const br = Math.floor(r / 3) * 3;
+          const bc = Math.floor(c / 3) * 3;
+          for (let rr = br; rr < br + 3; rr++) {
+            for (let cc = bc; cc < bc + 3; cc++) {
+              if (rr === r && cc === c) continue;
+              const arr = candidatesRef.current[rr][cc];
+              const idx = arr.indexOf(val);
+              if (idx >= 0) arr.splice(idx, 1);
+            }
+          }
+
+// Redraw to update conflict matrix and candidate rendering
           draw();
         }
-        // 如果当前输入导致冲突，派发一次全局事件供 MistakeCounter 统计
+// If input causes conflict, dispatch global event for MistakeCounter
         (function dispatchMistakeIfAny() {
           const r = sel.row, c = sel.col;
           const v = boardRef.current[r][c];
           if (!v) return;
-          // 行检查
+// Row check
           let conflict = false;
           {
             let cnt = 0;
             for (let cc = 0; cc < 9; cc++) if (boardRef.current[r][cc] === v) cnt++;
             if (cnt > 1) conflict = true;
           }
-          // 列检查
+// Column check
           if (!conflict) {
             let cnt = 0;
             for (let rr = 0; rr < 9; rr++) if (boardRef.current[rr][c] === v) cnt++;
             if (cnt > 1) conflict = true;
           }
-          // 宫检查
+// Block check
           if (!conflict) {
             const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
             let cnt = 0;
@@ -357,14 +386,14 @@ const SudokuGrid: React.FC<Props> = ({ className = '', maxSize = 720 }) => {
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // 监听笔记模式切换
+// Listen for note mode toggle
     const onNoteMode = (e: Event) => {
       const ce = e as CustomEvent<{ enabled: boolean }>;
       noteMode = !!ce.detail?.enabled;
     };
     window.addEventListener('sudoku:noteMode', onNoteMode as EventListener);
 
-    // 监听擦除事件
+// Listen for erase event
     const onErase = () => {
       if (!selectedRef.current) return;
       const { row, col } = selectedRef.current;

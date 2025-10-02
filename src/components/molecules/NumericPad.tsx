@@ -8,7 +8,7 @@ type Props = {
 
 const NumericButtons: React.FC<Props> = ({ className = '' }) => {
   const handleClick = (n: number) => {
-    // 通过派发键盘事件让 SudokuGrid 捕获并写入选中格（它监听 window 的 keydown）
+// Dispatch keyboard events so SudokuBoard captures input (it listens to window keydown)
     window.dispatchEvent(
       new KeyboardEvent('keydown', {
         key: String(n),

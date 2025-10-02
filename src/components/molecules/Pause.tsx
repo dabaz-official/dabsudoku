@@ -12,7 +12,7 @@ const Pause: React.FC<Props> = ({ className = '' }) => {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      // 同步外部状态（如果有其它地方改变暂停状态）
+// Sync external state if pause changes elsewhere
       try {
         const ce = e as CustomEvent<{ paused: boolean }>;
         if (typeof ce.detail?.paused === 'boolean') {
