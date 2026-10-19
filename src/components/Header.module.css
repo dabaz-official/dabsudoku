@@ -52,6 +52,39 @@
 	margin-left: auto;
 }
 
+/* Square icon button that switches between the light and dark themes. Sized to
+ * the secondary buttons beside it so the header row stays on one baseline. */
+.themeToggle {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	width: var(--control-md);
+	height: var(--control-md);
+	border: 1px solid var(--color-hairline-strong);
+	border-radius: var(--radius-md);
+	background: var(--color-canvas);
+	color: var(--color-text-secondary);
+	transition:
+		background-color var(--transition-fast),
+		border-color var(--transition-fast),
+		color var(--transition-fast);
+}
+
+.themeToggle:hover {
+	background: var(--color-surface);
+	color: var(--color-text-primary);
+}
+
+/* The label wrapper ButtonLink renders around its children. Below the sm
+ * breakpoint the header only has room for the icon, so the label is dropped;
+ * the link's aria-label still names it. */
+@media (max-width: 639px) {
+	.collapsible span {
+		display: none;
+	}
+}
+
 @media (min-width: 900px) {
 	.inner {
 		flex-wrap: nowrap;

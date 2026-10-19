@@ -5,7 +5,7 @@
 	display: grid;
 	place-items: center;
 	padding: var(--space-4);
-	background: rgba(250, 250, 249, 0.86);
+	background: var(--color-board-veil);
 	backdrop-filter: blur(3px);
 }
 
@@ -27,17 +27,17 @@
 	height: 44px;
 	margin-bottom: var(--space-3);
 	border-radius: var(--radius-full);
-	background: var(--tint-lavender);
-	color: var(--brand-purple-800);
+	background: var(--color-tint-lavender);
+	color: var(--color-accent-ink);
 }
 
 .iconSuccess {
-	background: var(--tint-mint);
+	background: var(--color-tint-mint);
 	color: var(--color-text-primary);
 }
 
 .iconError {
-	background: var(--tint-rose);
+	background: var(--color-tint-rose);
 	color: var(--color-error);
 }
 

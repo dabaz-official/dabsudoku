@@ -69,9 +69,9 @@
 .current,
 .current:hover {
 	border-color: var(--brand-purple-300);
-	background: var(--tint-lavender);
+	background: var(--color-tint-lavender);
 }
 
 .current .optionLabel {
-	color: var(--brand-purple-800);
+	color: var(--color-accent-ink);
 }

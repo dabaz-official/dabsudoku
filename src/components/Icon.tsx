@@ -22,7 +22,9 @@ export type IconName =
 	| 'sparkle'
 	| 'rows'
 	| 'columns'
-	| 'boxes';
+	| 'boxes'
+	| 'sun'
+	| 'moon';
 
 /**
  * Inline stroke icons on a 24px grid. Kept in-repo so the app needs no icon
@@ -152,6 +154,23 @@ const GLYPHS: Record<IconName, ReactNode> = {
 			<rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor" stroke="none" />
 			<rect x="13" y="13" width="8" height="8" rx="2" fill="currentColor" stroke="none" />
 		</>
+	),
+	/* Sun and moon share the geometry used by DabMinesweeper's theme toggle so
+	 * the two apps switch theme with the same icon. */
+	sun: (
+		<>
+			<circle cx="12" cy="12" r="4.6" fill="currentColor" stroke="none" />
+			<g strokeWidth="2">
+				<path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.9 1.9M17.3 17.3l1.9 1.9M19.2 4.8l-1.9 1.9M6.7 17.3l-1.9 1.9" />
+			</g>
+		</>
+	),
+	moon: (
+		<path
+			d="M20.2 15.1A8.6 8.6 0 0 1 8.9 3.8a8.8 8.8 0 1 0 11.3 11.3z"
+			fill="currentColor"
+			stroke="none"
+		/>
 	),
 };
 
