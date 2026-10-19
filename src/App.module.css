@@ -8,6 +8,16 @@
 	flex: 1 1 auto;
 }
 
+/* Phones: let the game page center itself in the space between the header and
+ * the footer, so a short page still fills the screen without a large empty gap
+ * above the footer. */
+@media (max-width: 959px) {
+	.main {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
 .skipLink {
 	position: absolute;
 	top: -100px;

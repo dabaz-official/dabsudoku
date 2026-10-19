@@ -97,6 +97,22 @@ kbd {
 	 * keyboard reference is desktop-only. */
 	.panelCard {
 		border: 0;
+		padding: 0;
+	}
+
+	/* Tighten the board → numbers → tools stack and let the number row, the
+	 * tool grid and the New game button share the board's full width. */
+	.layout {
+		gap: var(--space-3);
+	}
+
+	.panel {
+		gap: var(--space-2);
+	}
+
+	.page {
+		margin-block: auto;
+		padding-block-end: var(--space-4);
 	}
 
 	.keyboardCard {
