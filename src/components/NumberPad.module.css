@@ -48,3 +48,30 @@
 .key:disabled .remaining {
 	color: var(--color-text-disabled);
 }
+
+/* Phone layout: one flat row of 1–9, with no key or card borders and no
+ * remaining-count labels. Counts stay in each button's accessible name. */
+@media (max-width: 959px) {
+	.pad {
+		grid-template-columns: repeat(9, minmax(0, 1fr));
+		gap: 0;
+	}
+
+	.key {
+		min-height: 48px;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		font-size: 22px;
+	}
+
+	.key:hover:not(:disabled),
+	.key:disabled {
+		border: 0;
+		background: transparent;
+	}
+
+	.remaining {
+		display: none;
+	}
+}

@@ -68,3 +68,11 @@
 		margin-left: 0;
 	}
 }
+
+/* Phones pick a difficulty when starting a new game, so the header selector
+ * is desktop-only. */
+@media (max-width: 959px) {
+	.nav {
+		display: none;
+	}
+}

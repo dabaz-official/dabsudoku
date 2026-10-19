@@ -11,6 +11,7 @@ export interface GameStatusBarProps {
 	readonly elapsed: number;
 	readonly mistakes: number;
 	readonly status: GameStatus;
+	readonly shortcutHints: boolean;
 	readonly onTogglePause: () => void;
 }
 
@@ -19,10 +20,12 @@ export function GameStatusBar({
 	elapsed,
 	mistakes,
 	status,
+	shortcutHints,
 	onTogglePause,
 }: GameStatusBarProps) {
 	const paused = status === 'paused';
 	const finished = status === 'won' || status === 'lost';
+	const pauseLabel = paused ? 'Resume' : 'Pause';
 
 	return (
 		<div className={styles.bar}>
@@ -42,7 +45,7 @@ export function GameStatusBar({
 						onClick={onTogglePause}
 						disabled={finished}
 						aria-label={paused ? 'Resume game' : 'Pause game'}
-						title={paused ? 'Resume (Esc)' : 'Pause (Esc)'}
+						title={shortcutHints ? `${pauseLabel} (Esc)` : pauseLabel}
 					>
 						<Icon name={paused ? 'play' : 'pause'} size={15} />
 					</button>

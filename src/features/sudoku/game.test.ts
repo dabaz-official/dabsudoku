@@ -175,6 +175,28 @@ describe('erase, hint and undo', () => {
 		expect(undone.board[index]).toBe(0);
 		expect(undone.history).toHaveLength(0);
 	});
+
+	it('keeps the mistake count when undoing a wrong entry', () => {
+		const state = newGame();
+		const index = state.selected;
+		const wrong = gameReducer(state, { type: 'input', digit: wrongDigitFor(state, index) });
+		const undone = gameReducer(wrong, { type: 'undo' });
+
+		expect(wrong.mistakes).toBe(1);
+		expect(undone.board[index]).toBe(0);
+		expect(undone.mistakes).toBe(1);
+	});
+
+	it('still counts a repeated mistake after undoing it', () => {
+		const state = newGame();
+		const index = state.selected;
+		const digit = wrongDigitFor(state, index);
+		const first = gameReducer(state, { type: 'input', digit });
+		const undone = gameReducer(first, { type: 'undo' });
+		const second = gameReducer(undone, { type: 'input', digit });
+
+		expect(second.mistakes).toBe(2);
+	});
 });
 
 describe('pause', () => {

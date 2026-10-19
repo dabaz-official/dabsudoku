@@ -14,7 +14,6 @@ interface Snapshot {
 	readonly notes: Notes;
 	readonly wrong: readonly boolean[];
 	readonly hinted: readonly boolean[];
-	readonly mistakes: number;
 	readonly hintsLeft: number;
 }
 
@@ -74,7 +73,6 @@ function snapshot(state: GameState): Snapshot {
 		notes: state.notes.slice(),
 		wrong: state.wrong.slice(),
 		hinted: state.hinted.slice(),
-		mistakes: state.mistakes,
 		hintsLeft: state.hintsLeft,
 	};
 }
@@ -293,7 +291,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 				notes: entry.notes.slice(),
 				wrong: entry.wrong.slice(),
 				hinted: entry.hinted.slice(),
-				mistakes: entry.mistakes,
+				// Mistakes are permanent: undoing a wrong entry must not give
+				// the player a mistake back.
+				mistakes: state.mistakes,
 				hintsLeft: entry.hintsLeft,
 				history: state.history.slice(0, -1),
 				message: 'Undid the last move.',
