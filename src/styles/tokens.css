@@ -347,6 +347,36 @@
 	--color-tint-yellow: color-mix(in srgb, var(--tint-yellow) 24%, var(--color-canvas));
 	--color-tint-yellow-bold: color-mix(in srgb, var(--tint-yellow-bold) 24%, var(--color-canvas));
 
+	/* ------------------------------------------------------------------
+	 * Board roles
+	 *
+	 * The light theme separates these five tints by hue at almost equal
+	 * lightness (1.08–1.29:1 against white), which works because pastels keep
+	 * their chroma. Mixing the same pastels into a near-black canvas does not:
+	 * at one shared percentage all five collapse into the same dark grey, and
+	 * the selected cell becomes indistinguishable from the row/column highlight
+	 * (1.03:1 between them).
+	 *
+	 * So the board keeps the light theme's *ordering* — selected strongest, then
+	 * the error cell, then the peer and hint highlights, then the same-digit
+	 * highlight — but widens the selection's step, because on a dark surface the
+	 * selection has to be carried by lightness rather than hue. Every role is
+	 * still stronger here than its counterpart is against white in the light
+	 * theme, so nothing on the board got fainter:
+	 *
+	 *   selected 2.22 (light 1.29) > error 1.98 (1.23) > peer 1.37 (1.21)
+	 *   > hint 1.36 (1.18) > same 1.30 (1.08)
+	 *
+	 * The ceiling on the selection is its own text: the purple user digit only
+	 * reaches 4.57:1 on a 28% cell, so raising it further would cost the
+	 * contrast of the digits the player just entered.
+	 * ------------------------------------------------------------------ */
+	--cell-bg-peer: color-mix(in srgb, var(--tint-sky) 12%, var(--color-canvas));
+	--cell-bg-same: color-mix(in srgb, var(--tint-yellow) 10%, var(--color-canvas));
+	--cell-bg-selected: color-mix(in srgb, var(--tint-lavender) 28%, var(--color-canvas));
+	--cell-bg-hint: color-mix(in srgb, var(--tint-mint) 12%, var(--color-canvas));
+	--cell-bg-error: color-mix(in srgb, var(--tint-rose) 24%, var(--color-canvas));
+
 	--color-tint-wash: color-mix(in srgb, var(--gray-0) 10%, transparent);
 	--color-board-veil: color-mix(in srgb, var(--gray-950) 86%, transparent);
 

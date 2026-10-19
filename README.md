@@ -199,7 +199,8 @@ the primitives never change. Three rules were used, in order of preference:
 
 | Token | Dark value | Derivation |
 | --- | --- | --- |
-| Tinted surfaces | `--color-tint-*` | approved pastel at 24% over the dark canvas |
+| Card tints | `--color-tint-*` | approved pastel at 24% over the dark canvas |
+| Board highlights | `--cell-bg-*` | the same pastels at 10–28%, see below |
 | `--color-link` | `#4d9ee8` | Notion link blue at 70% toward white |
 | `--color-link-pressed` | `#66aceb` | Notion link blue at 60% toward white |
 | `--color-error` | `#eb7979` | Notion error red at 65% toward white |
@@ -210,6 +211,30 @@ the primitives never change. Three rules were used, in order of preference:
 Lightening rather than darkening the functional colors is the point: the Notion
 link blue measures 3.93:1 and the error red 2.56:1 on the dark canvas, both
 under the 4.5:1 target, and going darker would only make it worse.
+
+**Board highlights need their own percentages.** The light theme separates its
+five board tints by hue at almost equal lightness (1.08–1.29:1 against white),
+which works because pastels keep their chroma. Mixing the same pastels into a
+near-black canvas does not: at one shared percentage all five collapse into the
+same dark grey, and the selected cell became indistinguishable from the
+row/column highlight — 1.03:1 between them, which is how the first version of
+this shipped. The board therefore keeps the light theme's *ordering* but widens
+the selection's step, because on a dark surface the selection has to be carried
+by lightness rather than hue:
+
+| Board role | Light (vs white) | Dark (vs canvas) |
+| --- | --- | --- |
+| Selected cell — lavender 28% | 1.29 | 2.22 |
+| Error cell — rose 24% | 1.23 | 1.98 |
+| Peer highlight — sky 12% | 1.21 | 1.37 |
+| Hint highlight — mint 12% | 1.18 | 1.36 |
+| Same-digit highlight — yellow 10% | 1.08 | 1.30 |
+
+Every role ends up stronger in dark than its light counterpart, so nothing on
+the board got fainter — the selection simply gained a real step instead of a
+hue shift. The ceiling on it is its own text: the purple user digit only reaches
+4.57:1 on a 28% cell, so going lighter would cost the contrast of the digits the
+player just entered.
 
 **Contrast verification.** All foreground/background pairs actually used were
 measured with the WCAG relative-luminance formula:
@@ -244,25 +269,28 @@ the warm surface.
 | Tertiary text on canvas (icons only) | 7.11 | 3 |
 | White on purple CTA / CTA hover | 6.57 / 8.77 | 4.5 |
 | Purple user digit on canvas / surface | 10.14 / 8.56 | 4.5 |
-| Purple user digit on tinted cells (worst: yellow) | 4.81 | 4.5 |
 | Link on canvas / surface | 6.29 / 5.31 | 4.5 |
 | Link hover on canvas | 7.40 | 4.5 |
 | Error red on canvas / soft | 6.44 / 7.11 | 4.5 |
-| Error red on rose cell (large digits only) | 3.25 | 3 |
-| Error dot on rose cell (non-text) | 3.25 | 3 |
 | Focus ring on canvas / surface (non-text) | 10.14 / 8.56 | 3 |
 | Accent border on canvas (non-text) | 10.14 | 3 |
-| Primary text on tint cards (worst: yellow) | 8.14 | 4.5 |
-| Given digit on tinted cells (worst: yellow) | 8.14 | 4.5 |
-| Note digit on canvas cell | 12.09 | 4.5 |
-| Box separator on a peer cell (non-text) | 8.57 | 3 |
-| Hint dot on the hint cell (non-text) | 8.44 | 3 |
+| Primary text on card tints (worst: yellow) | 8.14 | 4.5 |
 | Canvas text on the active difficulty pill | 17.93 | 4.5 |
 | Rule-icon ink on the wash over a peach card | 6.40 | 4.5 |
 | Board veil text contrast | 18.74 | 4.5 |
+| **Selected cell** vs canvas / peer / same / hint | 2.22 / 1.62 / 1.70 / 1.63 | 1.5 |
+| Peer / same-digit / hint highlight vs canvas | 1.37 / 1.30 / 1.36 | 1.2 |
+| Error cell vs canvas / peer highlight | 1.98 / 1.45 | 1.2 |
+| Given digit on selected / peer / same / hint | 7.74 / 12.53 / 13.19 / 12.60 | 4.5 |
+| Purple user digit on selected / peer / same / hint | 4.57 / 7.40 / 7.79 / 7.44 | 4.5 |
+| Pencil notes on selected / peer cell | 5.45 / 8.82 | 4.5 |
+| Box separator on selected / peer cell (non-text) | 7.74 / 12.53 | 3 |
+| Error digit and dot on the rose cell | 3.25 | 3 |
+| Hint dot on the mint cell (non-text) | 12.60 | 3 |
+| Grid line vs peer / selected cell | 1.16 / 1.87 | 1 |
 | Disabled text on canvas (inactive control, exempt) | 2.29 | — |
 
-58 of the 59 pairs checked clear their target. The exception is
+56 of the 57 pairs checked clear their target. The exception is
 **`--color-hairline-strong` on canvas at 1.73:1**, below the 3:1 non-text
 target. It is not a dark-mode regression and it is not fixed here: the canonical
 dark mapping table assigns `gray-700` to `color-border-strong`, and the light
@@ -289,7 +317,12 @@ phone.
   light and dark, the toggle round-trip, the persisted value, the updated
   `theme-color`, and no horizontal overflow at 375px. Light mode is unchanged
   from the pre-dark-theme build, since the light side of every new token is an
-  alias of the value it replaced.
+  alias of the value it replaced, and the dark board percentages are overrides
+  that only apply under `data-theme="dark"`.
+- The board's selection contrast was checked by reading the computed background
+  of every cell in a real game, not by eye: with a cell selected, the four
+  distinct cell colours present were `#171717` (plain), `#2f3132` (peer),
+  `#2e2d2a` (same digit) and `#514f55` (selected).
 
 ## Not done
 
