@@ -110,7 +110,7 @@ export default function App() {
 
 	useEffect(() => {
 		document.title =
-			route === 'game' ? 'DabSudoku — a calm puzzle break' : 'How to play — DabSudoku';
+			route === 'game' ? 'DabSudoku | A Calm Puzzle Break' : 'How to Play | DabSudoku';
 		window.scrollTo({ top: 0, behavior: 'auto' });
 	}, [route]);
 
