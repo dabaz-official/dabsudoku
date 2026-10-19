@@ -69,6 +69,12 @@ pnpm typecheck  # tsc --noEmit
 - Theme switching is entirely a token concern: `data-theme` on `<html>` selects
   a second set of semantic values, and no component knows which theme is live.
 
+**Installable / offline**
+
+- Ships a web app manifest and a service worker, so the game installs to the
+  home screen and keeps working with no connection once it has been opened
+  once. See [Installable PWA](#installable-pwa).
+
 **Accessibility**
 
 - Semantic landmarks, a skip link, and 81 board cells as real `<button>`
@@ -105,8 +111,8 @@ puzzle per difficulty takes well under a second (measured in the test suite).
 ## Project structure
 
 ```
-index.html                     preserved icon/OG tags + font links
-public/                        favicon.ico, apple-icon.png, opengraph-image.jpg
+index.html                     icon/manifest/OG tags + font links + theme boot script
+public/                        brand icons, manifest.webmanifest, sw.js
 src/
   App.tsx                      routing, game lifecycle, difficulty state
   components/                  Icon, Button, Header, DifficultyTabs, SudokuBoard,
@@ -120,19 +126,39 @@ src/
   styles/global.css            reset, container, focus ring, reduced motion
 ```
 
-## Preserved assets
+## Brand assets
 
-The previous application's branding assets were kept, unchanged, and are still
-wired up in `index.html`:
+All five assets live in `public/` and are referenced from `index.html`:
 
-| Asset | Previous path | New path | Used for |
-| --- | --- | --- | --- |
-| `favicon.ico` | `src/app/icon.ico` | `public/favicon.ico` | `<link rel="icon">` and the header logo |
-| `apple-icon.png` | `src/app/apple-icon.png` | `public/apple-icon.png` | `<link rel="apple-touch-icon">` |
-| `opengraph-image.jpg` | `src/app/opengraph-image.jpg` | `public/opengraph-image.jpg` | `og:image` and `twitter:image` |
+| Asset | Size | Used for |
+| --- | --- | --- |
+| `favicon.png` | 256×256 | `<link rel="icon">` |
+| `header-logo.png` | 512×512 | The logo mark beside the wordmark in the header |
+| `og.jpg` | 1280×720 | `og:image` and `twitter:image` |
+| `pwa-icon-192.png` | 192×192 | Manifest icon, `<link rel="apple-touch-icon">` |
+| `pwa-icon-512.png` | 512×512 | Manifest icon |
 
-Everything else from the previous implementation was deleted; the new app was
-written from scratch.
+## Installable PWA
+
+The app installs to the home screen and runs offline.
+
+- `public/manifest.webmanifest` declares the name, `standalone` display, the
+  start URL and scope, and the two 192/512 icons. `theme_color` is the light
+  `--color-canvas` (`#ffffff`) and `background_color` the page background
+  (`--color-surface-soft`, `#fafaf9`); the `<meta name="theme-color">` tag is
+  re-pointed at the dark canvas by `useTheme` while the app is running.
+- `public/sw.js` precaches the shell (document, manifest, icons) on install and
+  serves navigations network-first with the cached shell as the offline
+  fallback. Everything else the page pulls in — Vite's hashed bundles, the
+  Inter webfont — is cached stale-while-revalidate as it is used, so a second
+  visit paints from disk and a new build is picked up on the visit after that.
+  Bump `CACHE_VERSION` in `sw.js` to retire the old caches.
+- `src/main.tsx` registers the worker on `load` and **only in the production
+  build**, so the dev server is never served from a stale cache.
+
+Open item: the two icons are full-bleed, so they are declared `purpose: "any"`
+only. Android's adaptive-icon mask would clip the outer grid lines; a padded
+`purpose: "maskable"` variant is still needed for a proper masked launcher icon.
 
 ## Design decisions
 
@@ -323,6 +349,15 @@ phone.
   of every cell in a real game, not by eye: with a cell selected, the four
   distinct cell colours present were `#171717` (plain), `#2f3132` (peer),
   `#2e2d2a` (same digit) and `#514f55` (selected).
+- The icons and the PWA wiring were checked in the in-app browser against the
+  production build (`pnpm preview`, since the worker is production-only): the
+  manifest is served as `application/manifest+json` and parses, `favicon.png`,
+  `header-logo.png` (loaded at 512×512) and `og.jpg` are the ones referenced,
+  the worker activates and controls the page, and after one reload the shell
+  cache holds the document, manifest and icons while the runtime cache holds the
+  hashed bundles, the Google Fonts stylesheet and the Inter `woff2`. The caches
+  were inspected rather than played back with the network actually cut, so an
+  offline load was not exercised end to end.
 
 ## Not done
 
@@ -331,3 +366,7 @@ phone.
   keep following it if the OS theme changes while the app is open, because an
   explicit choice in the header always wins afterwards.
 - `prefers-contrast` is not handled.
+- The PWA icons are `purpose: "any"` only, so an Android launcher that masks
+  icons would clip their outer grid lines; a padded maskable variant is still
+  needed. There is also no in-app "new version ready" prompt: a new build is
+  picked up on the visit after the one that installs it.
