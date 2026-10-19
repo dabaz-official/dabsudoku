@@ -1,0 +1,244 @@
+/*
+ * Design tokens.
+ *
+ * Two sources are combined here:
+ *  1. The DabAZ canonical design specification (neutral primitives, spacing,
+ *     radius, sizing, typography scale, breakpoints, containers).
+ *  2. The Notion company style, explicitly requested for this project
+ *     (warm surfaces, ink/charcoal/slate text, purple primary CTA, pastel
+ *     card tints).
+ *
+ * Where the two disagree, the requested Notion style wins. See README.md for
+ * the list of canonical rules that were intentionally overridden.
+ *
+ * Only light theme is implemented: the Notion reference documents no dark
+ * theme tokens beyond its navy hero band, and the canonical document forbids
+ * inventing them.
+ */
+
+:root {
+	/* ------------------------------------------------------------------
+	 * Primitive neutrals (approved, canonical — do not change)
+	 * ------------------------------------------------------------------ */
+	--gray-0: #ffffff;
+	--gray-50: #fafafa;
+	--gray-100: #f5f5f5;
+	--gray-150: #ebebeb;
+	--gray-200: #e5e5e5;
+	--gray-300: #d4d4d4;
+	--gray-400: #a3a3a3;
+	--gray-500: #737373;
+	--gray-600: #525252;
+	--gray-700: #404040;
+	--gray-800: #262626;
+	--gray-900: #171717;
+	--gray-950: #0a0a0a;
+	--gray-1000: #000000;
+
+	/* ------------------------------------------------------------------
+	 * Surfaces and lines (Notion)
+	 * ------------------------------------------------------------------ */
+	--color-canvas: #ffffff;
+	--color-surface: #f6f5f4;
+	--color-surface-soft: #fafaf9;
+	--color-hairline: #e5e3df;
+	--color-hairline-soft: #ede9e4;
+	--color-hairline-strong: #c8c4be;
+
+	/* ------------------------------------------------------------------
+	 * Text (Notion)
+	 *
+	 * --color-text-secondary is slate rather than steel: steel (#787671) only
+	 * reaches ~4.49:1 on white, just under the WCAG AA 4.5:1 target, so it is
+	 * kept for non-text use (icons, borders) where 3:1 applies.
+	 * ------------------------------------------------------------------ */
+	--color-text-primary: #37352f; /* charcoal */
+	--color-text-strong: #1a1a1a; /* ink */
+	--color-text-secondary: #5d5b54; /* slate */
+	--color-text-tertiary: #787671; /* steel — non-text / large use only */
+	--color-text-disabled: #a4a097; /* stone */
+	--color-text-placeholder: #bbb8b1; /* muted */
+
+	/* ------------------------------------------------------------------
+	 * Brand and functional colors (Notion)
+	 * ------------------------------------------------------------------ */
+	--color-primary: #5645d4;
+	--color-primary-pressed: #4534b3;
+	--color-primary-deep: #3a2a99;
+	--color-on-primary: #ffffff;
+	--color-link: #0075de;
+	--color-link-pressed: #005bab;
+	--color-success: #1aae39;
+	--color-warning: #dd5b00;
+	--color-error: #e03131;
+
+	/* Focus uses the Notion focused-input treatment (2px purple). Provisional:
+	 * the canonical document leaves focus-ring values open. */
+	--color-focus: var(--color-primary);
+
+	/* Accent spectrum (Notion) */
+	--brand-navy: #0a1530;
+	--brand-navy-deep: #070f24;
+	--brand-navy-mid: #1a2a52;
+	--brand-orange: #dd5b00;
+	--brand-orange-deep: #793400;
+	--brand-pink: #ff64c8;
+	--brand-pink-deep: #a02e6d;
+	--brand-purple: #7b3ff2;
+	--brand-purple-300: #d6b6f6;
+	--brand-purple-800: #391c57;
+	--brand-teal: #2a9d99;
+	--brand-green: #1aae39;
+	--brand-yellow: #f5d75e;
+	--brand-brown: #523410;
+
+	/* Pastel card tints (Notion) */
+	--tint-peach: #ffe8d4;
+	--tint-rose: #fde0ec;
+	--tint-mint: #d9f3e1;
+	--tint-lavender: #e6e0f5;
+	--tint-sky: #dcecfa;
+	--tint-yellow: #fef7d6;
+	--tint-yellow-bold: #f9e79f;
+	--tint-cream: #f8f5e8;
+	--tint-gray: #f0eeec;
+
+	/* ------------------------------------------------------------------
+	 * Board roles
+	 *
+	 * Expressed as semantic roles over the approved tints so the board can be
+	 * restyled without touching component CSS.
+	 * ------------------------------------------------------------------ */
+	--cell-bg: var(--color-canvas);
+	--cell-bg-peer: var(--tint-sky);
+	--cell-bg-same: var(--tint-yellow);
+	--cell-bg-selected: var(--tint-lavender);
+	--cell-bg-hint: var(--tint-mint);
+	--cell-bg-error: var(--tint-rose);
+	--cell-line: var(--color-hairline);
+	--cell-line-strong: var(--color-text-primary);
+	--cell-text-given: var(--color-text-primary);
+	--cell-text-user: var(--color-primary);
+	--cell-text-note: var(--color-text-secondary);
+	--cell-text-error: var(--color-error);
+
+	/* ------------------------------------------------------------------
+	 * Typography
+	 *
+	 * Notion Sans is a proprietary typeface that is not publicly available;
+	 * Inter is its documented fallback and is also the canonical DabAZ
+	 * primary typeface, so Inter is used with a CJK-capable system fallback.
+	 * ------------------------------------------------------------------ */
+	--font-sans:
+		Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+		'Microsoft YaHei', sans-serif;
+
+	/* Canonical scale (12–48px) */
+	--text-xs: 12px;
+	--leading-xs: 16px;
+	--text-sm: 14px;
+	--leading-sm: 20px;
+	--text-base: 16px;
+	--leading-base: 24px;
+	--text-lg: 18px;
+	--leading-lg: 28px;
+	--heading-sm: 20px;
+	--leading-heading-sm: 28px;
+	--heading-md: 24px;
+	--leading-heading-md: 32px;
+	--heading-lg: 32px;
+	--leading-heading-lg: 40px;
+	--display-sm: 40px;
+	--leading-display-sm: 48px;
+	--display-lg: 48px;
+	--leading-display-lg: 56px;
+
+	/* Notion scale extras */
+	--type-h1: clamp(32px, 5vw, 48px);
+	--type-h2: clamp(26px, 3.6vw, 36px);
+	--type-h3: clamp(22px, 2.6vw, 28px);
+	--type-h4: 22px;
+	--type-h5: 18px;
+	--type-subtitle: 18px;
+	--type-body: 16px;
+	--type-body-sm: 14px;
+	--type-caption: 13px;
+	--type-micro: 12px;
+	--type-micro-uppercase: 11px;
+	--type-button: 14px;
+	--tracking-display: -0.02em;
+	--tracking-heading: -0.01em;
+	--tracking-uppercase: 0.08em;
+
+	--weight-regular: 400;
+	--weight-medium: 500;
+	--weight-semibold: 600;
+	--weight-bold: 700;
+
+	/* ------------------------------------------------------------------
+	 * Spacing (4px base — canonical and Notion agree)
+	 * ------------------------------------------------------------------ */
+	--space-0-5: 2px;
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-5: 20px;
+	--space-6: 24px;
+	--space-8: 32px;
+	--space-10: 40px;
+	--space-12: 48px;
+	--space-16: 64px;
+	--space-20: 80px;
+	--space-24: 96px;
+
+	/* ------------------------------------------------------------------
+	 * Radius (canonical scale, plus Notion's 20px step)
+	 * ------------------------------------------------------------------ */
+	--radius-xs: 4px;
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+	--radius-20: 20px;
+	--radius-2xl: 24px;
+	--radius-full: 9999px;
+
+	/* ------------------------------------------------------------------
+	 * Sizing
+	 * ------------------------------------------------------------------ */
+	--icon-xs: 12px;
+	--icon-sm: 16px;
+	--icon-md: 20px;
+	--icon-lg: 24px;
+	--control-sm: 32px;
+	--control-md: 40px;
+	--control-lg: 44px;
+	--control-xl: 56px;
+
+	/* ------------------------------------------------------------------
+	 * Elevation (Notion levels 0–4)
+	 * ------------------------------------------------------------------ */
+	--shadow-1: rgba(15, 15, 15, 0.04) 0 1px 2px 0;
+	--shadow-2: rgba(15, 15, 15, 0.08) 0 4px 12px 0;
+	--shadow-3: rgba(15, 15, 15, 0.2) 0 24px 48px -8px;
+	--shadow-4: rgba(15, 15, 15, 0.16) 0 16px 48px -8px;
+
+	/* ------------------------------------------------------------------
+	 * Motion (provisional: Notion reference suggests 150–200ms ease)
+	 * ------------------------------------------------------------------ */
+	--transition-fast: 150ms ease;
+	--transition: 180ms ease;
+
+	/* ------------------------------------------------------------------
+	 * Layout
+	 * ------------------------------------------------------------------ */
+	--container-sm: 640px;
+	--container-md: 768px;
+	--container-lg: 1024px;
+	--container-xl: 1200px;
+	--container-2xl: 1280px;
+	--board-max: 560px;
+	--sidebar-width: 336px;
+	--header-height: 64px;
+}

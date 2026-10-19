@@ -1,0 +1,111 @@
+.page {
+	padding-block: var(--space-6) var(--space-16);
+}
+
+.layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--space-6);
+	align-items: start;
+}
+
+.boardColumn {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+	min-width: 0;
+}
+
+.boardShell {
+	position: relative;
+	width: 100%;
+	max-width: var(--board-max);
+	margin-inline: auto;
+}
+
+.statusLine {
+	min-height: 1.5rem;
+	color: var(--color-text-secondary);
+	font-size: var(--type-body-sm);
+	text-align: center;
+}
+
+.panel {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+	width: 100%;
+	max-width: var(--board-max);
+	margin-inline: auto;
+}
+
+.panelCard {
+	padding: var(--space-4);
+	border: 1px solid var(--color-hairline);
+	border-radius: var(--radius-lg);
+	background: var(--color-canvas);
+}
+
+.panelTitle {
+	margin-bottom: var(--space-3);
+	color: var(--color-text-secondary);
+	font-size: var(--type-micro-uppercase);
+	font-weight: var(--weight-semibold);
+	letter-spacing: var(--tracking-uppercase);
+	text-transform: uppercase;
+}
+
+.shortcuts {
+	display: grid;
+	gap: var(--space-2);
+	list-style: none;
+}
+
+.shortcuts li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	color: var(--color-text-secondary);
+	font-size: var(--type-caption);
+}
+
+.keys {
+	display: inline-flex;
+	gap: var(--space-1);
+}
+
+kbd {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 22px;
+	padding: 2px 6px;
+	border: 1px solid var(--color-hairline);
+	border-bottom-width: 2px;
+	border-radius: var(--radius-xs);
+	background: var(--color-surface);
+	color: var(--color-text-primary);
+	font-family: var(--font-sans);
+	font-size: var(--type-micro);
+	font-weight: var(--weight-medium);
+	line-height: 1.4;
+}
+
+@media (min-width: 960px) {
+	.page {
+		padding-block: var(--space-8) var(--space-20);
+	}
+
+	.layout {
+		grid-template-columns: minmax(0, var(--board-max)) var(--sidebar-width);
+		justify-content: center;
+		gap: var(--space-8);
+	}
+
+	.panel {
+		position: sticky;
+		top: calc(var(--header-height) + var(--space-6));
+		max-width: none;
+	}
+}

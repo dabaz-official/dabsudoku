@@ -1,0 +1,29 @@
+.controls {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: var(--space-2);
+}
+
+.badge {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: var(--radius-full);
+	background: var(--tint-lavender);
+	color: var(--brand-purple-800);
+	font-size: 11px;
+	font-weight: var(--weight-semibold);
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+}
+
+.badgeEmpty {
+	background: var(--color-surface);
+	color: var(--color-text-disabled);
+}
