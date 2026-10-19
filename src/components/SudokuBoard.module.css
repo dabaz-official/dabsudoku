@@ -1,0 +1,162 @@
+.board {
+	display: grid;
+	grid-template-columns: repeat(9, 1fr);
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	background: var(--color-canvas);
+	border: 2px solid var(--cell-line-strong);
+	overflow: hidden;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.cell {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	background: var(--cell-bg);
+	border-right: 1px solid var(--cell-line);
+	border-bottom: 1px solid var(--cell-line);
+	color: var(--cell-text-given);
+	font-family: var(--font-sans);
+	font-size: clamp(17px, 4.4vw, 28px);
+	font-weight: var(--weight-medium);
+	line-height: 1;
+	transition: background-color var(--transition-fast);
+}
+
+/* 3x3 box separators. */
+.cell[data-col='2'],
+.cell[data-col='5'] {
+	border-right-width: 2px;
+	border-right-color: var(--cell-line-strong);
+}
+
+.cell[data-row='2'],
+.cell[data-row='5'] {
+	border-bottom-width: 2px;
+	border-bottom-color: var(--cell-line-strong);
+}
+
+.cell:nth-child(9n) {
+	border-right: 0;
+}
+
+.cell:nth-child(n + 73) {
+	border-bottom: 0;
+}
+
+.cell:hover {
+	background: var(--color-surface);
+}
+
+.user {
+	color: var(--cell-text-user);
+	font-weight: var(--weight-medium);
+}
+
+.peer {
+	background: var(--cell-bg-peer);
+}
+
+.same {
+	background: var(--cell-bg-same);
+}
+
+.hintCell {
+	background: var(--cell-bg-hint);
+}
+
+.hintCell::after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	/* Charcoal rather than the Notion teal: teal on the mint hint tint only
+	 * reaches 2.80:1, under the 3:1 non-text target. */
+	background: var(--color-text-primary);
+}
+
+/* Selection is shown by the lavender background only. The accessible name of
+ * the cell also reports the selected state, so the cue is not colour-only. */
+.selected {
+	background: var(--cell-bg-selected);
+}
+
+.wrong {
+	background: var(--cell-bg-error);
+	color: var(--cell-text-error);
+}
+
+.wrong::after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: var(--color-error);
+}
+
+.cell:focus-visible {
+	outline: 2px solid var(--color-focus);
+	outline-offset: -2px;
+	z-index: 2;
+}
+
+.locked .cell {
+	cursor: default;
+}
+
+.locked .cell:hover {
+	background: var(--cell-bg);
+}
+
+.locked .peer:hover {
+	background: var(--cell-bg-peer);
+}
+
+.locked .same:hover {
+	background: var(--cell-bg-same);
+}
+
+.locked .hintCell:hover {
+	background: var(--cell-bg-hint);
+}
+
+.locked .selected:hover {
+	background: var(--cell-bg-selected);
+}
+
+.locked .wrong:hover {
+	background: var(--cell-bg-error);
+}
+
+.notes {
+	position: absolute;
+	inset: 3px;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: repeat(3, 1fr);
+	color: var(--cell-text-note);
+	font-size: clamp(7px, 1.7vw, 11px);
+	font-weight: var(--weight-medium);
+	line-height: 1;
+}
+
+.note,
+.noteHidden {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.noteHidden {
+	visibility: hidden;
+}

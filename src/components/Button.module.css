@@ -1,0 +1,98 @@
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	border: 1px solid transparent;
+	border-radius: var(--radius-md);
+	font-family: var(--font-sans);
+	font-size: var(--type-button);
+	font-weight: var(--weight-medium);
+	line-height: 1.3;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition:
+		background-color var(--transition-fast),
+		border-color var(--transition-fast),
+		color var(--transition-fast),
+		box-shadow var(--transition-fast);
+}
+
+.md {
+	min-height: var(--control-md);
+	padding: 10px 18px;
+}
+
+.lg {
+	min-height: var(--control-lg);
+	padding: 12px 20px;
+	font-size: var(--text-base);
+}
+
+.primary {
+	background: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-on-primary);
+}
+
+.primary:hover {
+	background: var(--color-primary-pressed);
+	border-color: var(--color-primary-pressed);
+	color: var(--color-on-primary);
+}
+
+.secondary {
+	background: transparent;
+	border-color: var(--color-hairline-strong);
+	color: var(--color-text-strong);
+}
+
+.secondary:hover {
+	background: var(--color-surface);
+	color: var(--color-text-strong);
+}
+
+.ghost {
+	background: transparent;
+	color: var(--color-text-secondary);
+}
+
+.ghost:hover {
+	background: var(--color-surface);
+	color: var(--color-text-primary);
+}
+
+/* Square tool button used for Undo / Erase / Notes / Hint. */
+.tool {
+	position: relative;
+	flex-direction: column;
+	gap: var(--space-1);
+	min-height: 64px;
+	padding: 10px 6px;
+	background: var(--color-canvas);
+	border-color: var(--color-hairline);
+	color: var(--color-text-primary);
+	font-size: var(--type-caption);
+	font-weight: var(--weight-medium);
+}
+
+.tool:hover {
+	background: var(--color-surface-soft);
+	border-color: var(--color-hairline-strong);
+}
+
+.tool[aria-pressed='true'] {
+	background: var(--tint-lavender);
+	border-color: var(--brand-purple-300);
+	color: var(--brand-purple-800);
+}
+
+.fullWidth {
+	width: 100%;
+}
+
+.button:disabled {
+	cursor: not-allowed;
+	opacity: 0.45;
+}

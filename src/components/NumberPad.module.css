@@ -1,0 +1,50 @@
+.pad {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--space-2);
+}
+
+.key {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	min-height: 56px;
+	border: 1px solid var(--color-hairline);
+	border-radius: var(--radius-md);
+	background: var(--color-canvas);
+	color: var(--color-primary);
+	font-size: 22px;
+	font-weight: var(--weight-medium);
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	transition:
+		background-color var(--transition-fast),
+		border-color var(--transition-fast),
+		color var(--transition-fast);
+}
+
+.key:hover:not(:disabled) {
+	border-color: var(--color-hairline-strong);
+	background: var(--color-surface-soft);
+}
+
+.key:disabled {
+	background: var(--color-surface-soft);
+	color: var(--color-text-disabled);
+	cursor: not-allowed;
+}
+
+.remaining {
+	font-size: var(--type-micro-uppercase);
+	font-weight: var(--weight-semibold);
+	letter-spacing: var(--tracking-uppercase);
+	text-transform: uppercase;
+	color: var(--color-text-secondary);
+}
+
+.key:disabled .remaining {
+	color: var(--color-text-disabled);
+}
