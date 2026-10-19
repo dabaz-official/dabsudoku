@@ -135,18 +135,30 @@ All five assets live in `public/` and are referenced from `index.html`:
 | `favicon.png` | 256×256 | `<link rel="icon">` |
 | `header-logo.png` | 512×512 | The logo mark beside the wordmark in the header |
 | `og.jpg` | 1280×720 | `og:image` and `twitter:image` |
-| `pwa-icon-192.png` | 192×192 | Manifest icon, `<link rel="apple-touch-icon">` |
-| `pwa-icon-512.png` | 512×512 | Manifest icon |
+| `pwa-icon-192.png` | 192×192 | Manifest icon (`any`), `<link rel="apple-touch-icon">` |
+| `pwa-icon-512.png` | 512×512 | Manifest icon (`any`) |
+| `pwa-icon-maskable-192.png` | 192×192 | Manifest icon (`maskable`) |
+| `pwa-icon-maskable-512.png` | 512×512 | Manifest icon (`maskable`) |
+
+The two `maskable` files are the same artwork inset to 56.25% of the canvas
+(the largest square whose corners still fit inside the maskable safe zone — a
+circle 80% of the icon's width), centred on the artwork's own white background.
+A launcher that masks icons to a circle or a squircle therefore never clips the
+grid's outer frame. Every non-white pixel sits within 174px of the centre on the
+512 file, against a 204.8px safe radius.
 
 ## Installable PWA
 
 The app installs to the home screen and runs offline.
 
 - `public/manifest.webmanifest` declares the name, `standalone` display, the
-  start URL and scope, and the two 192/512 icons. `theme_color` is the light
-  `--color-canvas` (`#ffffff`) and `background_color` the page background
-  (`--color-surface-soft`, `#fafaf9`); the `<meta name="theme-color">` tag is
-  re-pointed at the dark canvas by `useTheme` while the app is running.
+  start URL and scope, and the four icons: the full-bleed pair as `purpose:
+  "any"` and the padded pair as `purpose: "maskable"`, so a masked launcher
+  takes the inset artwork while everything else takes the full-bleed one.
+  `theme_color` is the light `--color-canvas` (`#ffffff`) and
+  `background_color` the page background (`--color-surface-soft`, `#fafaf9`);
+  the `<meta name="theme-color">` tag is re-pointed at the dark canvas by
+  `useTheme` while the app is running.
 - `public/sw.js` precaches the shell (document, manifest, icons) on install and
   serves navigations network-first with the cached shell as the offline
   fallback. Everything else the page pulls in — Vite's hashed bundles, the
@@ -156,9 +168,11 @@ The app installs to the home screen and runs offline.
 - `src/main.tsx` registers the worker on `load` and **only in the production
   build**, so the dev server is never served from a stale cache.
 
-Open item: the two icons are full-bleed, so they are declared `purpose: "any"`
-only. Android's adaptive-icon mask would clip the outer grid lines; a padded
-`purpose: "maskable"` variant is still needed for a proper masked launcher icon.
+iOS does not read `maskable` icons, so `<link rel="apple-touch-icon">` still
+points at the full-bleed `pwa-icon-192.png`. iOS rounds that icon with a
+squircle whose corner radius is about 22% of its width, which can nick the
+corners of the grid frame; an 85%-scale variant is what would avoid that if it
+ever looks wrong on a home screen.
 
 ## Design decisions
 
@@ -366,7 +380,5 @@ phone.
   keep following it if the OS theme changes while the app is open, because an
   explicit choice in the header always wins afterwards.
 - `prefers-contrast` is not handled.
-- The PWA icons are `purpose: "any"` only, so an Android launcher that masks
-  icons would clip their outer grid lines; a padded maskable variant is still
-  needed. There is also no in-app "new version ready" prompt: a new build is
-  picked up on the visit after the one that installs it.
+- There is no in-app "new version ready" prompt: a new build is picked up on
+  the visit after the one that installs it.
