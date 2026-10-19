@@ -16,7 +16,14 @@ export interface HeaderProps {
 
 function LogoMark() {
 	return (
-		<img className={styles.logo} src="/favicon.ico" alt="" width={26} height={26} />
+		<img
+			className={styles.logo}
+			src="/header-logo.png"
+			alt=""
+			width={26}
+			height={26}
+			decoding="async"
+		/>
 	);
 }
 

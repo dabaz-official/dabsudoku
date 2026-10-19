@@ -15,3 +15,13 @@ createRoot(container).render(
 		<App />
 	</StrictMode>,
 );
+
+// Offline support and installability. Registered only in the production build,
+// so the dev server is never served from a stale cache.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+	window.addEventListener('load', () => {
+		navigator.serviceWorker.register('/sw.js').catch(() => {
+			// Non-fatal: the game still runs, it just is not installable offline.
+		});
+	});
+}
