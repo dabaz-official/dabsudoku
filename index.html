@@ -9,7 +9,7 @@
 		<link rel="apple-touch-icon" href="/apple-icon.png" />
 
 		<meta name="theme-color" content="#ffffff" />
-		<title>DabSudoku — a calm puzzle break</title>
+		<title>DabSudoku | A Calm Puzzle Break</title>
 		<meta
 			name="description"
 			content="Play DabSudoku with four difficulty levels, notes, hints and a timer. A quiet, focused puzzle game."
@@ -37,6 +37,25 @@
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
+
+		<script>
+			// Applies the saved theme before first paint so the page never flashes
+			// the wrong one. Keep the storage key in sync with src/hooks/useTheme.ts.
+			(function () {
+				var theme = 'light';
+				try {
+					var stored = localStorage.getItem('dabsudoku.theme.v1');
+					if (stored === 'light' || stored === 'dark') {
+						theme = stored;
+					} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+						theme = 'dark';
+					}
+				} catch (error) {
+					theme = 'light';
+				}
+				document.documentElement.dataset.theme = theme;
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="root"></div>

@@ -97,15 +97,15 @@
 }
 
 .tintPeach {
-	background: var(--tint-peach);
+	background: var(--color-tint-peach);
 }
 
 .tintMint {
-	background: var(--tint-mint);
+	background: var(--color-tint-mint);
 }
 
 .tintLavender {
-	background: var(--tint-lavender);
+	background: var(--color-tint-lavender);
 }
 
 .ruleIcon {
@@ -116,7 +116,7 @@
 	height: 40px;
 	margin-bottom: var(--space-1);
 	border-radius: var(--radius-md);
-	background: rgba(255, 255, 255, 0.72);
+	background: var(--color-tint-wash);
 	color: var(--color-text-primary);
 }
 
@@ -221,11 +221,11 @@
 }
 
 .exampleHighlight {
-	background: var(--tint-sky);
+	background: var(--color-tint-sky);
 }
 
 .exampleFocus {
-	background: var(--tint-yellow-bold);
+	background: var(--color-tint-yellow-bold);
 }
 
 .steps {
@@ -251,8 +251,8 @@
 	width: 28px;
 	height: 28px;
 	border-radius: var(--radius-full);
-	background: var(--tint-lavender);
-	color: var(--brand-purple-800);
+	background: var(--color-tint-lavender);
+	color: var(--color-accent-ink);
 	font-size: var(--type-caption);
 	font-weight: var(--weight-semibold);
 }
@@ -272,7 +272,7 @@
 .callout {
 	padding: var(--space-8);
 	border-radius: var(--radius-lg);
-	background: var(--tint-yellow-bold);
+	background: var(--color-tint-yellow-bold);
 	color: var(--color-text-primary);
 }
 

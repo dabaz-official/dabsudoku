@@ -1,13 +1,17 @@
 import type { Difficulty } from '../features/sudoku/types';
 import type { Route } from '../hooks/useRoute';
+import type { Theme } from '../hooks/useTheme';
 import { ButtonLink } from './Button';
 import { DifficultyTabs } from './DifficultyTabs';
+import { Icon } from './Icon';
 import styles from './Header.module.css';
 
 export interface HeaderProps {
 	readonly route: Route;
 	readonly difficulty: Difficulty;
 	readonly onSelectDifficulty: (difficulty: Difficulty) => void;
+	readonly theme: Theme;
+	readonly onToggleTheme: () => void;
 }
 
 function LogoMark() {
@@ -16,7 +20,17 @@ function LogoMark() {
 	);
 }
 
-export function Header({ route, difficulty, onSelectDifficulty }: HeaderProps) {
+export function Header({
+	route,
+	difficulty,
+	onSelectDifficulty,
+	theme,
+	onToggleTheme,
+}: HeaderProps) {
+	// The button shows the theme it switches to, matching DabMinesweeper.
+	const isLight = theme === 'light';
+	const themeLabel = isLight ? 'Switch to dark theme' : 'Switch to light theme';
+
 	return (
 		<header className={styles.header}>
 			<div className={`container ${styles.inner}`}>
@@ -31,14 +45,34 @@ export function Header({ route, difficulty, onSelectDifficulty }: HeaderProps) {
 
 				<div className={styles.actions}>
 					{route === 'game' ? (
-						<ButtonLink href="#/how-to-play" icon="question">
+						<ButtonLink
+							href="#/how-to-play"
+							icon="question"
+							className={styles.collapsible}
+							aria-label="How to play"
+						>
 							How to play
 						</ButtonLink>
 					) : (
-						<ButtonLink href="#/" icon="arrow-left">
+						<ButtonLink
+							href="#/"
+							icon="arrow-left"
+							className={styles.collapsible}
+							aria-label="Back to game"
+						>
 							Back to game
 						</ButtonLink>
 					)}
+
+					<button
+						type="button"
+						className={styles.themeToggle}
+						onClick={onToggleTheme}
+						aria-label={themeLabel}
+						title={themeLabel}
+					>
+						<Icon name={isLight ? 'moon' : 'sun'} size={18} />
+					</button>
 				</div>
 			</div>
 		</header>

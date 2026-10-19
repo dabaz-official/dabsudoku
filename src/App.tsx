@@ -8,6 +8,7 @@ import { useGameTimer } from './features/sudoku/useGameTimer';
 import type { Difficulty } from './features/sudoku/types';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { navigate, useRoute } from './hooks/useRoute';
+import { useTheme } from './hooks/useTheme';
 import { GamePage } from './pages/GamePage';
 import { HowToPlayPage } from './pages/HowToPlayPage';
 
@@ -16,6 +17,7 @@ const GENERATE_DELAY_MS = 40;
 
 export default function App() {
 	const route = useRoute();
+	const { theme, toggleTheme } = useTheme();
 	const [difficulty, setDifficulty] = useState<Difficulty>('easy');
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [pickerOpen, setPickerOpen] = useState(false);
@@ -122,7 +124,13 @@ export default function App() {
 				Skip to main content
 			</button>
 
-			<Header route={route} difficulty={difficulty} onSelectDifficulty={handleSelectDifficulty} />
+			<Header
+				route={route}
+				difficulty={difficulty}
+				onSelectDifficulty={handleSelectDifficulty}
+				theme={theme}
+				onToggleTheme={toggleTheme}
+			/>
 
 			<div className={styles.main} id="main-content" tabIndex={-1}>
 				{route === 'game' ? (

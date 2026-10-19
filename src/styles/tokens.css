@@ -11,12 +11,17 @@
  * Where the two disagree, the requested Notion style wins. See README.md for
  * the list of canonical rules that were intentionally overridden.
  *
- * Only light theme is implemented: the Notion reference documents no dark
- * theme tokens beyond its navy hero band, and the canonical document forbids
- * inventing them.
+ * Theme switching happens at the semantic layer only: the primitives are the
+ * same in both themes and `:root[data-theme='dark']` re-points the semantic
+ * tokens. The Notion reference documents no dark tokens beyond its navy hero
+ * band, so the dark values are the canonical dark mapping table where it has
+ * one, and are otherwise derived from approved values with `color-mix()` —
+ * never invented as new hex literals. Every derived value, and the contrast
+ * ratio it was chosen to clear, is listed in README.md.
  */
 
 :root {
+	color-scheme: light;
 	/* ------------------------------------------------------------------
 	 * Primitive neutrals (approved, canonical — do not change)
 	 * ------------------------------------------------------------------ */
@@ -72,6 +77,12 @@
 	--color-warning: #dd5b00;
 	--color-error: #e03131;
 
+	/* The Notion purple is dark enough to sit on white as text, but not on the
+	 * dark canvas (2.70:1), so text uses a separate ink token that the dark
+	 * theme can lighten without touching the CTA fill. */
+	--color-primary-ink: var(--color-primary);
+	--color-accent-ink: var(--brand-purple-800);
+
 	/* Focus uses the Notion focused-input treatment (2px purple). Provisional:
 	 * the canonical document leaves focus-ring values open. */
 	--color-focus: var(--color-primary);
@@ -104,21 +115,42 @@
 	--tint-gray: #f0eeec;
 
 	/* ------------------------------------------------------------------
+	 * Tinted surfaces
+	 *
+	 * The pastel primitives are only usable on light surfaces. These semantic
+	 * tokens are what components and board roles reference, so the dark theme
+	 * can re-derive them from the same primitives instead of restating them.
+	 * ------------------------------------------------------------------ */
+	--color-tint-peach: var(--tint-peach);
+	--color-tint-rose: var(--tint-rose);
+	--color-tint-mint: var(--tint-mint);
+	--color-tint-lavender: var(--tint-lavender);
+	--color-tint-sky: var(--tint-sky);
+	--color-tint-yellow: var(--tint-yellow);
+	--color-tint-yellow-bold: var(--tint-yellow-bold);
+
+	/* Translucent white chip used to lift an icon off a tinted card. */
+	--color-tint-wash: rgba(255, 255, 255, 0.72);
+
+	/* Scrim the board overlays sit on. */
+	--color-board-veil: rgba(250, 250, 249, 0.86);
+
+	/* ------------------------------------------------------------------
 	 * Board roles
 	 *
 	 * Expressed as semantic roles over the approved tints so the board can be
 	 * restyled without touching component CSS.
 	 * ------------------------------------------------------------------ */
 	--cell-bg: var(--color-canvas);
-	--cell-bg-peer: var(--tint-sky);
-	--cell-bg-same: var(--tint-yellow);
-	--cell-bg-selected: var(--tint-lavender);
-	--cell-bg-hint: var(--tint-mint);
-	--cell-bg-error: var(--tint-rose);
+	--cell-bg-peer: var(--color-tint-sky);
+	--cell-bg-same: var(--color-tint-yellow);
+	--cell-bg-selected: var(--color-tint-lavender);
+	--cell-bg-hint: var(--color-tint-mint);
+	--cell-bg-error: var(--color-tint-rose);
 	--cell-line: var(--color-hairline);
 	--cell-line-strong: var(--color-text-primary);
 	--cell-text-given: var(--color-text-primary);
-	--cell-text-user: var(--color-primary);
+	--cell-text-user: var(--color-primary-ink);
 	--cell-text-note: var(--color-text-secondary);
 	--cell-text-error: var(--color-error);
 
@@ -241,4 +273,117 @@
 	--board-max: 560px;
 	--sidebar-width: 336px;
 	--header-height: 64px;
+}
+
+/*
+ * Dark theme.
+ *
+ * Surfaces, text and borders follow the canonical dark mapping table
+ * (background gray-950, surface gray-900, surface-secondary gray-800,
+ * text-primary gray-50, text-secondary gray-300, text-tertiary gray-400,
+ * border gray-800, border-strong gray-700). DabSudoku names its page
+ * background `surface-soft` and its card/board background `canvas`, so the
+ * mapping lands on those two in that order — dark mode keeps the light theme's
+ * relationship, where cards sit above the page.
+ *
+ * The remaining values are derivations of approved values, because neither the
+ * canonical document nor the Notion reference defines dark equivalents:
+ *
+ *   - Tinted surfaces: the approved pastel at 24% over the dark canvas, which
+ *     keeps every tint's hue while clearing 4.5:1 for text on top of it.
+ *   - Functional colors (link, error): the approved value mixed 60–70% toward
+ *     white, so they clear 4.5:1 on the dark canvas instead of 3.93:1 and
+ *     2.56:1 as-is. Going darker would only make it worse.
+ *   - Purple text and the focus ring: `brand-purple-300`, an approved Notion
+ *     value, since the primary purple only reaches 2.70:1 on the dark canvas.
+ *   - The pastel tints are re-derived at the semantic layer (`--color-tint-*`),
+ *     never by redefining the primitives.
+ *
+ * The canonical document marks functional colors, the shadow scale and the
+ * focus ring as open decisions, so these stay provisional and are flagged in
+ * README.md rather than presented as approved standards.
+ */
+:root[data-theme='dark'] {
+	color-scheme: dark;
+
+	--color-canvas: var(--gray-900);
+	--color-surface: var(--gray-800);
+	--color-surface-soft: var(--gray-950);
+	--color-hairline: var(--gray-800);
+	--color-hairline-soft: var(--gray-800);
+	--color-hairline-strong: var(--gray-700);
+
+	--color-text-primary: var(--gray-50);
+	--color-text-strong: var(--gray-0);
+	--color-text-secondary: var(--gray-300);
+	--color-text-tertiary: var(--gray-400);
+	--color-text-disabled: var(--gray-600);
+	/* Unused today; mapped so the semantic set stays complete in both themes.
+	 * Dark has fewer usable faint steps, so this collapses onto tertiary. */
+	--color-text-placeholder: var(--gray-400);
+
+	/* --color-primary and --color-primary-pressed are deliberately not
+	 * overridden: white on the Notion purple measures 6.57:1, so the CTA works
+	 * unchanged, and only text and the focus ring needed lightening. */
+	--color-primary-ink: var(--brand-purple-300);
+	--color-accent-ink: var(--brand-purple-300);
+
+	/* color-mix cannot reference the token being defined, so the approved light
+	 * values are restated here as the mix base. */
+	--color-link: color-mix(in srgb, #0075de 70%, var(--gray-0));
+	--color-link-pressed: color-mix(in srgb, #0075de 60%, var(--gray-0));
+	--color-error: color-mix(in srgb, #e03131 65%, var(--gray-0));
+	/* Unused today, mixed by the same rule as the two above. */
+	--color-success: color-mix(in srgb, #1aae39 65%, var(--gray-0));
+	--color-warning: color-mix(in srgb, #dd5b00 60%, var(--gray-0));
+
+	--color-focus: var(--brand-purple-300);
+
+	--color-tint-peach: color-mix(in srgb, var(--tint-peach) 24%, var(--color-canvas));
+	--color-tint-rose: color-mix(in srgb, var(--tint-rose) 24%, var(--color-canvas));
+	--color-tint-mint: color-mix(in srgb, var(--tint-mint) 24%, var(--color-canvas));
+	--color-tint-lavender: color-mix(in srgb, var(--tint-lavender) 24%, var(--color-canvas));
+	--color-tint-sky: color-mix(in srgb, var(--tint-sky) 24%, var(--color-canvas));
+	--color-tint-yellow: color-mix(in srgb, var(--tint-yellow) 24%, var(--color-canvas));
+	--color-tint-yellow-bold: color-mix(in srgb, var(--tint-yellow-bold) 24%, var(--color-canvas));
+
+	/* ------------------------------------------------------------------
+	 * Board roles
+	 *
+	 * The light theme separates these five tints by hue at almost equal
+	 * lightness (1.08–1.29:1 against white), which works because pastels keep
+	 * their chroma. Mixing the same pastels into a near-black canvas does not:
+	 * at one shared percentage all five collapse into the same dark grey, and
+	 * the selected cell becomes indistinguishable from the row/column highlight
+	 * (1.03:1 between them).
+	 *
+	 * So the board keeps the light theme's *ordering* — selected strongest, then
+	 * the error cell, then the peer and hint highlights, then the same-digit
+	 * highlight — but widens the selection's step, because on a dark surface the
+	 * selection has to be carried by lightness rather than hue. Every role is
+	 * still stronger here than its counterpart is against white in the light
+	 * theme, so nothing on the board got fainter:
+	 *
+	 *   selected 2.22 (light 1.29) > error 1.98 (1.23) > peer 1.37 (1.21)
+	 *   > hint 1.36 (1.18) > same 1.30 (1.08)
+	 *
+	 * The ceiling on the selection is its own text: the purple user digit only
+	 * reaches 4.57:1 on a 28% cell, so raising it further would cost the
+	 * contrast of the digits the player just entered.
+	 * ------------------------------------------------------------------ */
+	--cell-bg-peer: color-mix(in srgb, var(--tint-sky) 12%, var(--color-canvas));
+	--cell-bg-same: color-mix(in srgb, var(--tint-yellow) 10%, var(--color-canvas));
+	--cell-bg-selected: color-mix(in srgb, var(--tint-lavender) 28%, var(--color-canvas));
+	--cell-bg-hint: color-mix(in srgb, var(--tint-mint) 12%, var(--color-canvas));
+	--cell-bg-error: color-mix(in srgb, var(--tint-rose) 24%, var(--color-canvas));
+
+	--color-tint-wash: color-mix(in srgb, var(--gray-0) 10%, transparent);
+	--color-board-veil: color-mix(in srgb, var(--gray-950) 86%, transparent);
+
+	/* Elevation has to be carried by stronger shadows on dark surfaces. The
+	 * values match DabMinesweeper so the two apps look consistent. */
+	--shadow-1: rgba(0, 0, 0, 0.32) 0 1px 2px 0;
+	--shadow-2: rgba(0, 0, 0, 0.4) 0 4px 12px 0;
+	--shadow-3: rgba(0, 0, 0, 0.55) 0 24px 48px -8px;
+	--shadow-4: rgba(0, 0, 0, 0.6) 0 16px 48px -8px;
 }

@@ -15,7 +15,7 @@
 	border: 1px solid var(--color-hairline);
 	border-radius: var(--radius-md);
 	background: var(--color-canvas);
-	color: var(--color-primary);
+	color: var(--color-primary-ink);
 	font-size: 22px;
 	font-weight: var(--weight-medium);
 	line-height: 1;
