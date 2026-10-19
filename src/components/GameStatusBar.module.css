@@ -95,3 +95,15 @@
 	font-weight: var(--weight-medium);
 	font-variant-numeric: tabular-nums;
 }
+
+/* Phones: the difficulty already lives in the header, so the duplicate
+ * "Easy puzzle" badge is dropped and the stats take the full row. */
+@media (max-width: 959px) {
+	.badge {
+		display: none;
+	}
+
+	.bar {
+		justify-content: flex-start;
+	}
+}

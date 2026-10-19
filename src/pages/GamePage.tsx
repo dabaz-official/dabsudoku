@@ -7,6 +7,7 @@ import { GameStatusBar } from '../components/GameStatusBar';
 import { NumberPad } from '../components/NumberPad';
 import { SudokuBoard } from '../components/SudokuBoard';
 import { digitCounts, type GameAction, type GameState } from '../features/sudoku/game';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import styles from './GamePage.module.css';
 
 export interface GamePageProps {
@@ -27,6 +28,7 @@ const ARROW_MOVES: Record<string, { dRow: number; dCol: number }> = {
 export function GamePage({ state, elapsed, isGenerating, dispatch, onNewGame }: GamePageProps) {
 	const counts = useMemo(() => digitCounts(state), [state]);
 	const { status, notesMode, hintsLeft, history } = state;
+	const shortcutHints = useMediaQuery('(min-width: 960px)');
 
 	const overlayKind: OverlayKind | null = isGenerating
 		? 'loading'
@@ -142,6 +144,7 @@ export function GamePage({ state, elapsed, isGenerating, dispatch, onNewGame }: 
 						elapsed={elapsed}
 						mistakes={state.mistakes}
 						status={status}
+						shortcutHints={shortcutHints}
 						onTogglePause={() => dispatch({ type: status === 'paused' ? 'resume' : 'pause' })}
 					/>
 
@@ -180,6 +183,7 @@ export function GamePage({ state, elapsed, isGenerating, dispatch, onNewGame }: 
 							notesMode={notesMode}
 							hintsLeft={hintsLeft}
 							disabled={locked}
+							shortcutHints={shortcutHints}
 							onUndo={() => dispatch({ type: 'undo' })}
 							onErase={() => dispatch({ type: 'erase' })}
 							onToggleNotes={() => dispatch({ type: 'toggle-notes' })}
@@ -191,7 +195,7 @@ export function GamePage({ state, elapsed, isGenerating, dispatch, onNewGame }: 
 						New game
 					</Button>
 
-					<section className={styles.panelCard}>
+					<section className={`${styles.panelCard} ${styles.keyboardCard}`}>
 						<h2 className={styles.panelTitle}>Keyboard</h2>
 						<ul className={styles.shortcuts}>
 							<li>

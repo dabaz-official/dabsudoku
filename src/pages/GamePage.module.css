@@ -92,6 +92,38 @@ kbd {
 	line-height: 1.4;
 }
 
+@media (max-width: 959px) {
+	/* Phones: the number and tool sections become borderless blocks, and the
+	 * keyboard reference is desktop-only. */
+	.panelCard {
+		border: 0;
+	}
+
+	.keyboardCard {
+		display: none;
+	}
+
+	.panelTitle {
+		display: none;
+	}
+
+	/* Phones: the message line under the board is hidden visually but stays in
+	 * the accessibility tree so live status updates are still announced. */
+	.statusLine {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		min-height: 0;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
+	}
+}
+
 @media (min-width: 960px) {
 	.page {
 		padding-block: var(--space-8) var(--space-20);

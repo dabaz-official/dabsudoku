@@ -48,10 +48,6 @@
 	border-bottom: 0;
 }
 
-.cell:hover {
-	background: var(--color-surface);
-}
-
 .user {
 	color: var(--cell-text-user);
 	font-weight: var(--weight-medium);
@@ -112,30 +108,6 @@
 
 .locked .cell {
 	cursor: default;
-}
-
-.locked .cell:hover {
-	background: var(--cell-bg);
-}
-
-.locked .peer:hover {
-	background: var(--cell-bg-peer);
-}
-
-.locked .same:hover {
-	background: var(--cell-bg-same);
-}
-
-.locked .hintCell:hover {
-	background: var(--cell-bg-hint);
-}
-
-.locked .selected:hover {
-	background: var(--cell-bg-selected);
-}
-
-.locked .wrong:hover {
-	background: var(--cell-bg-error);
 }
 
 .notes {

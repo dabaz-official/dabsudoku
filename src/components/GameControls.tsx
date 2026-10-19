@@ -6,6 +6,7 @@ export interface GameControlsProps {
 	readonly notesMode: boolean;
 	readonly hintsLeft: number;
 	readonly disabled: boolean;
+	readonly shortcutHints: boolean;
 	readonly onUndo: () => void;
 	readonly onErase: () => void;
 	readonly onToggleNotes: () => void;
@@ -17,6 +18,7 @@ export function GameControls({
 	notesMode,
 	hintsLeft,
 	disabled,
+	shortcutHints,
 	onUndo,
 	onErase,
 	onToggleNotes,
@@ -27,19 +29,25 @@ export function GameControls({
 			<Button
 				variant="tool"
 				icon="undo"
-				title="Undo (Ctrl+Z)"
+				title={shortcutHints ? 'Undo (Ctrl+Z)' : 'Undo'}
 				disabled={disabled || !canUndo}
 				onClick={onUndo}
 			>
 				Undo
 			</Button>
-			<Button variant="tool" icon="erase" title="Erase (Backspace)" disabled={disabled} onClick={onErase}>
+			<Button
+				variant="tool"
+				icon="erase"
+				title={shortcutHints ? 'Erase (Backspace)' : 'Erase'}
+				disabled={disabled}
+				onClick={onErase}
+			>
 				Erase
 			</Button>
 			<Button
 				variant="tool"
 				icon="notes"
-				title="Pencil notes (N)"
+				title={shortcutHints ? 'Pencil notes (N)' : 'Pencil notes'}
 				aria-pressed={notesMode}
 				disabled={disabled}
 				onClick={onToggleNotes}
@@ -49,7 +57,7 @@ export function GameControls({
 			<Button
 				variant="tool"
 				icon="hint"
-				title="Reveal a cell (H)"
+				title={shortcutHints ? 'Reveal a cell (H)' : 'Reveal a cell'}
 				disabled={disabled || hintsLeft === 0}
 				onClick={onHint}
 			>

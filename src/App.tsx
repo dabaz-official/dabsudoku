@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import styles from './App.module.css';
 import { Header } from './components/Header';
+import { NewGameDialog } from './components/NewGameDialog';
 import { generatePuzzle } from './features/sudoku/generator';
 import { createGame, gameReducer } from './features/sudoku/game';
 import { useGameTimer } from './features/sudoku/useGameTimer';
 import type { Difficulty } from './features/sudoku/types';
+import { useMediaQuery } from './hooks/useMediaQuery';
 import { navigate, useRoute } from './hooks/useRoute';
 import { GamePage } from './pages/GamePage';
 import { HowToPlayPage } from './pages/HowToPlayPage';
@@ -16,6 +18,8 @@ export default function App() {
 	const route = useRoute();
 	const [difficulty, setDifficulty] = useState<Difficulty>('easy');
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [pickerOpen, setPickerOpen] = useState(false);
+	const isCompact = useMediaQuery('(max-width: 959px)');
 	const [state, dispatch] = useReducer(gameReducer, null, () =>
 		createGame(generatePuzzle('easy'), 1),
 	);
@@ -50,6 +54,38 @@ export default function App() {
 		},
 		[route, startNewGame],
 	);
+
+	// On phones the header selector is hidden, so both "New game" buttons open
+	// the difficulty picker instead of starting with the current level.
+	const requestNewGame = useCallback(() => {
+		if (isCompact) {
+			setPickerOpen(true);
+			return;
+		}
+		startNewGame(difficulty);
+	}, [difficulty, isCompact, startNewGame]);
+
+	const startFromHowToPlay = useCallback(() => {
+		if (isCompact) {
+			setPickerOpen(true);
+			return;
+		}
+		handleSelectDifficulty(difficulty);
+	}, [difficulty, handleSelectDifficulty, isCompact]);
+
+	const chooseDifficulty = useCallback(
+		(next: Difficulty) => {
+			setPickerOpen(false);
+			handleSelectDifficulty(next);
+		},
+		[handleSelectDifficulty],
+	);
+
+	useEffect(() => {
+		if (!isCompact) {
+			setPickerOpen(false);
+		}
+	}, [isCompact]);
 
 	// Leaving the game pauses it, so the timer never runs while the rules are
 	// being read.
@@ -95,10 +131,10 @@ export default function App() {
 						elapsed={elapsed}
 						isGenerating={isGenerating}
 						dispatch={dispatch}
-						onNewGame={() => startNewGame(difficulty)}
+						onNewGame={requestNewGame}
 					/>
 				) : (
-					<HowToPlayPage onStart={() => handleSelectDifficulty(difficulty)} />
+					<HowToPlayPage onStart={startFromHowToPlay} />
 				)}
 			</div>
 
@@ -114,6 +150,13 @@ export default function App() {
 					</span>
 				</div>
 			</footer>
+
+			<NewGameDialog
+				open={pickerOpen}
+				current={difficulty}
+				onSelect={chooseDifficulty}
+				onClose={() => setPickerOpen(false)}
+			/>
 		</div>
 	);
 }
