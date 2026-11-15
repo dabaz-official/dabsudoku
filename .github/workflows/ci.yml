@@ -1,7 +1,7 @@
 name: CI
 
-# typecheck, test, and build, in one place: the definition lives in
-# https://github.com/dabaz-official/.github/blob/main/.github/workflows/web-ci.yml
+# typecheck, test, and build, composed as `pnpm check`. The workflow only runs
+# that gate: https://github.com/dabaz-official/.github/blob/main/.github/workflows/web-ci.yml
 on:
   pull_request:
     branches: [main]
@@ -19,6 +19,3 @@ concurrency:
 jobs:
   ci:
     uses: dabaz-official/.github/.github/workflows/web-ci.yml@main
-    with:
-      # No ESLint config yet; the rest of the checks run.
-      lint: false
